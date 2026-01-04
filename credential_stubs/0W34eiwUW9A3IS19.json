@@ -1,0 +1,16 @@
+{
+  "id": "0W34eiwUW9A3IS19",
+  "name": "Gmail account 2",
+  "type": "gmailOAuth2",
+  "data": {
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "ownedBy": {
+    "type": "personal",
+    "projectId": "FVsR1IcvnclYvdsJ",
+    "projectName": "min liu <970568830@qq.com>",
+    "personalEmail": "970568830@qq.com"
+  },
+  "isGlobal": false
+}

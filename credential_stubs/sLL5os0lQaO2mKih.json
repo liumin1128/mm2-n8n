@@ -1,0 +1,16 @@
+{
+  "id": "sLL5os0lQaO2mKih",
+  "name": "YouTube account",
+  "type": "youTubeOAuth2Api",
+  "data": {
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "ownedBy": {
+    "type": "personal",
+    "projectId": "FVsR1IcvnclYvdsJ",
+    "projectName": "min liu <970568830@qq.com>",
+    "personalEmail": "970568830@qq.com"
+  },
+  "isGlobal": false
+}

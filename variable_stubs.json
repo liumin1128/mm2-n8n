@@ -1,0 +1,44 @@
+[
+  {
+    "id": "aDUak7LsyyQwJBTE",
+    "key": "coolify_api_origin",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "id": "zwoSgtPzVuQXouuI",
+    "key": "minio_public_prefix",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "id": "zqqFStjRGgfYNyCB",
+    "key": "pixabay_api_key",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "id": "F6joYkYhmZ7imXGx",
+    "key": "replicate_api_key",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "id": "F9eaHdenXNouJxi9",
+    "key": "n8n_origin",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "id": "lUAw6Xl0FgOU8SUr",
+    "key": "remotion_url",
+    "type": "string",
+    "value": ""
+  },
+  {
+    "id": "CXEVKjEATfTSTRAF",
+    "key": "minio_bucket",
+    "type": "string",
+    "value": ""
+  }
+]

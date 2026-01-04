@@ -1,0 +1,15 @@
+{
+  "id": "CfkMVa5yUgty9x32",
+  "name": "DeepSeek account",
+  "type": "deepSeekApi",
+  "data": {
+    "apiKey": ""
+  },
+  "ownedBy": {
+    "type": "personal",
+    "projectId": "FVsR1IcvnclYvdsJ",
+    "projectName": "min liu <970568830@qq.com>",
+    "personalEmail": "970568830@qq.com"
+  },
+  "isGlobal": false
+}
