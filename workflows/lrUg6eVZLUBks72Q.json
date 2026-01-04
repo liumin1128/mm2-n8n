@@ -1,0 +1,4628 @@
+{
+  "id": "lrUg6eVZLUBks72Q",
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Create Podcast",
+        "formDescription": "1. 默认使用 Remotion 封面；\n2. 默认使用人物对话视频模板；",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Content",
+              "placeholder": "Link Or Content",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "PosterText"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -896,
+        288
+      ],
+      "id": "dada619f-2bc1-461e-85ec-ab8da663f07f",
+      "name": "On form submission",
+      "webhookId": "b8a932e8-c2e8-4391-b747-7af67bdde820"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $json._id.toJsonString() }},\n  \"podcast\": {\n    \"result\": {{ $('Audio Result Webhook').item.json.body.result.toJsonString() }}\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        1568
+      ],
+      "id": "cd27dada-6d9f-4403-a3c5-3f8facb0ae8b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $json._id.toJsonString() }},\n  \"video\": {\n    \"objectId\": {{ $('Video Result Webhook').item.json.body.result.objectName.toJsonString() }}\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        3216
+      ],
+      "id": "a60a8e45-7b10-4846-a37b-8f3ab2226c1b",
+      "name": "Edit Fields5",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"video.taskId\": \"{{ $json.body.taskId }}\" } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        3216
+      ],
+      "id": "ed978dbb-9a69-4343-8a32-e65778e9977e",
+      "name": "Find documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Find documents7').item.json._id.toJsonString() }}\n  \"podcast\": {\n    \"taskId\": {{ $json.taskId.toJsonString() }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        1056
+      ],
+      "id": "50660472-3318-4bcd-b92a-84a3dbc686b5",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"podcast.taskId\": {{ $json.body.taskId.toJsonString() }} }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        1568
+      ],
+      "id": "3dcb2508-1fd6-4a7e-91da-3905716ccde8",
+      "name": "Find documents1",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "podcast.result",
+        "options": {
+          "useDotNotation": true
+        }
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        1568
+      ],
+      "id": "0bb3400a-b4b0-46ac-b631-a230195a2420",
+      "name": "Update Podcast",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "video.objectId",
+        "options": {
+          "useDotNotation": true
+        }
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        3216
+      ],
+      "id": "1d2511a0-e4f7-44f1-b0bd-af5a29713ebe",
+      "name": "Update Video",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a1563b08-7df8-4486-a5c4-ae4be64310a8",
+              "leftValue": "={{ $json.body.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        1664
+      ],
+      "id": "198f9fa6-f5a6-4425-bd72-505416c0d397",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9e5b802f-ae43-4475-9dd5-61aff2cbeb49",
+              "leftValue": "={{ $json.body.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        3312
+      ],
+      "id": "ccbbc95f-5638-4462-af79-c9b469eed06b",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.coolify_api_origin }}/volcengine/podcasts",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        1152
+      ],
+      "id": "47f45c41-8bb7-4bff-ba54-744eb6d9cd55",
+      "name": "Create Podcast Task",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "formTitle": "Publish YouTube Video",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "id",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -672,
+        4016
+      ],
+      "id": "93266e9c-3533-4cb9-9735-9dd01ec2597b",
+      "name": "On form submission1",
+      "webhookId": "4d0e8261-7e35-4680-abe4-51fd2531ef88"
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"_id\": {{ $json.id.toJsonString() }} } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        3920
+      ],
+      "id": "a4fb1480-1c81-44aa-9d93-07a594314f91",
+      "name": "Find documents2",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.minio_public_prefix + $json.video.objectId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        0,
+        3920
+      ],
+      "id": "d6667f43-ba66-48df-99d7-08da75adfb52",
+      "name": "HTTP Request",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $json.metadata.title }}",
+        "regionCode": "CN",
+        "categoryId": "24",
+        "binaryProperty": "=data",
+        "options": {
+          "defaultLanguage": "zh-CN",
+          "description": "={{ $json.metadata.tags.map(v => `#${v}`).join(' ') }}\n{{ $json.metadata.description }}",
+          "notifySubscribers": true,
+          "publicStatsViewable": false,
+          "selfDeclaredMadeForKids": false,
+          "tags": "={{ $json.metadata.tags.join(',') }}"
+        }
+      },
+      "name": "Upload to YouTube",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        224,
+        3920
+      ],
+      "id": "4bbeb00b-ba46-4124-ada9-8e1d76561f97",
+      "disabled": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "youtube",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        3632
+      ],
+      "id": "cdf0dd47-d4d7-41c9-8f58-0c081a6de9bc",
+      "name": "MongoDB",
+      "retryOnFail": false,
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3d8332c5-3379-4f49-8ae4-8cca5735af0c",
+              "leftValue": "={{ $json.youtube.uploadId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        3920
+      ],
+      "id": "1f47cd8e-0633-4739-a9d3-7bb3c294529e",
+      "name": "Not published"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Find documents2').item.json._id.toJsonString() }},\n  \"youtube\": {\n    \"uploadId\": {{ $json.uploadId.toJsonString() }}\n  }\n}\n ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        3632
+      ],
+      "id": "9bb7675d-534e-4351-98e2-65b19b73f5c0",
+      "name": "Edit Fields8"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast YouTube 上传视频失败\n\n{{ $json.error }}"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        4208
+      ],
+      "id": "c14410b9-480d-4b8e-8250-6a750ec22c5d",
+      "name": "Notify error"
+    },
+    {
+      "parameters": {
+        "url": "={{ $vars.minio_public_prefix + $('Find documents2').item.json.poster.objectId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        448,
+        3824
+      ],
+      "id": "a8ce680b-1eda-4238-98a2-829fff37512a",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 发布的视频成功\n\nhttps://www.youtube.com/watch?v={{ $json.youtube.uploadId }}\n\n"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        3632
+      ],
+      "id": "0c77bd0d-a365-4fa2-8271-b40d36b32912",
+      "name": "Notify video published"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 视频渲染成功\n\n标题\n\n{{ $('Find documents').item.json.metadata.title }}\n\n封面文字\n\n{{ $('Find documents').item.json.metadata.cover_text }}\n\n描述\n\n{{ $('Find documents').item.json.metadata.description }}\n\n[视频链接]({{ $vars.minio_public_prefix + $('Video Result Webhook').item.json.body.result.objectName }})\n\n[视频封面]({{ $vars.minio_public_prefix +  $('Find documents').item.json.poster.objectId }})\n\n[发布链接](https://n8n.darkred.vip:8888/webhook/83acaab0-47ce-40c5-8193-f15e5ad22f34?id={{ $('Find documents').item.json._id }})\n"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        3216
+      ],
+      "id": "45793977-eb2c-4e2e-acb7-3fbe1b125d4f",
+      "name": "Notify video ready",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "path": "publish_video",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        3824
+      ],
+      "id": "d176ac4d-1893-4c36-a7a8-01d4d8c517dc",
+      "name": "Webhook",
+      "webhookId": "83acaab0-47ce-40c5-8193-f15e5ad22f34"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6d2781a-1c37-4583-aa6a-cb0b0156f9c2",
+              "name": "id",
+              "value": "={{ $json.query.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        3824
+      ],
+      "id": "ac6f107e-43be-4c0b-9243-c2894f8334bf",
+      "name": "Edit Fields10"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 生成错误\n\n{{ $('Audio Result Webhook').item.json.body.toJsonString() }}\n"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        1760
+      ],
+      "id": "120b8332-dd85-43a8-a652-d593afe4b634",
+      "name": "Notify audio error"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 视频渲染失败\n\n{{ $('Video Result Webhook').item.json.body.toJsonString() }}\n"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        3408
+      ],
+      "id": "c4050a2b-69c2-4b1b-b090-aab094d388e4",
+      "name": "Notify video render error"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/youtube/v3/thumbnails/set",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "youTubeOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "videoId",
+              "value": "={{ $('Upload to YouTube').item.json.uploadId }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        672,
+        3824
+      ],
+      "id": "e28ea305-97a4-41ae-9d4a-74b5d7c50e03",
+      "name": "Update Thumbnail",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "create_video_result",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        3312
+      ],
+      "id": "d3e8de51-7651-4cfe-aa70-d9c4b7adc02c",
+      "name": "Video Result Webhook",
+      "webhookId": "6994d2dc-ec92-468e-b0b7-52c4ee2fcd9e"
+    },
+    {
+      "parameters": {
+        "path": "create_video",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        2608
+      ],
+      "id": "ae0ded6d-0ff5-4e3e-8ac0-9fa9b4091a57",
+      "name": "Video Render Webhook",
+      "webhookId": "43c58394-5b23-4335-8c91-44917620532d"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "podcast_result_callback",
+        "responseMode": "lastNode",
+        "responseData": "noData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        1664
+      ],
+      "id": "9c0e097d-d505-4803-a36c-3f4c0e9a6eed",
+      "name": "Audio Result Webhook",
+      "webhookId": "6fbd03b1-a15b-4fa1-b051-62b11ad36df7"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Find documents4').item.json._id.toJsonString() }},\n  \"video\": {\n    \"taskId\": {{ $json.taskId.toJsonString() }}\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        2688
+      ],
+      "id": "f4175900-b326-4777-9315-f9faa461a022",
+      "name": "Edit Fields12"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "video",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        2688
+      ],
+      "id": "b49186d7-5dd6-46ca-a81c-f3be2ceeb38a",
+      "name": "Find and update documents2",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"_id\": {{ $('Video Render Webhook').item.json.query.id.toJsonString() }} } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        2608
+      ],
+      "id": "47fef6d8-a7e8-4b88-b764-356f10230e89",
+      "name": "Find documents4",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{$vars.n8n_origin}}/webhook/create_video?id={{ $('Find documents1').item.json._id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        1664
+      ],
+      "id": "bc62521b-8935-45ae-aa86-71cb06cc1b41",
+      "name": "Render Video"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.coolify_api_origin}}/remotion/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"serveUrl\": \"{{$vars.remotion_url}}\",\n  \"id\": \"Audiogram\",\n  \"inputProps\": {\n    \"audioFileUrl\": \"{{$vars.minio_public_prefix}}/{{ $json.podcast.result.finalAudioObjectId }}\",\n    \"titleText\": \"{{ $json.metadata.title }}\",\n    \"srtContent\": {{ $json.podcast.result.subtitleSRTSplittedContent.toJsonString() }}\n  },\n  \"callbackUrl\": \"{{$vars.n8n_origin}}/webhook/create_video_result\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        2416
+      ],
+      "id": "d1e62859-05aa-43ee-ab89-abf10a952d70",
+      "name": "Render Video Audiogram",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.coolify_api_origin}}/remotion/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"serveUrl\": \"{{$vars.remotion_url}}\",\n  \"id\": \"Conversation\",\n  \"inputProps\": {\n    \"audioFileUrl\": \"{{$vars.minio_public_prefix}}/{{ $json.podcast.result.finalAudioObjectId }}\",\n    \"backgroundAudioFileUrl\": \"https://minioapi.darkred.vip:8888/public/Zambolino%20-%20Beautiful%20Day%20(freetouse.com).mp3\",\n    \"titleText\": \"{{ $json.metadata.title }}\",\n    \"captionsTranscript\": {{ $json.podcast.result.podcastInfo.subtitles.toJsonString() }}\n  },\n  \"callbackUrl\": \"{{$vars.n8n_origin}}/webhook/create_video_result\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        2608
+      ],
+      "id": "c679f6b6-c278-488b-9cbd-7c460a68b850",
+      "name": "Render Video Conversation",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"_id\": {{ $json.query.id.toJsonString() }} } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -672,
+        2080
+      ],
+      "id": "8850b9d3-f22d-4e1a-be8a-a22409a61697",
+      "name": "Find documents5",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "30495552-cd01-414a-a266-6c5381548a3b",
+              "leftValue": "={{ $json.poster.objectId }}",
+              "rightValue": "Audiogram",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        2080
+      ],
+      "id": "a37cd204-fbf7-428b-a17e-97d38f34f300",
+      "name": "If10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.replicate.com/v1/models/bytedance/seedream-4/predictions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.replicate_api_key }}"
+            },
+            {
+              "name": "Prefer",
+              "value": "wait"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  \"input\": {\n    \"size\": \"2K\",\n    \"width\": 1920,\n    \"height\": 1080,\n    \"prompt\": `${$json.output}`,\n    \"max_images\": 1,\n    \"image_input\": [],\n    \"aspect_ratio\": \"16:9\",\n    \"sequential_image_generation\": \"disabled\"\n  }\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        2080
+      ],
+      "id": "b4a40d51-0e9f-4a75-8736-7dd59d4b729f",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={\n  \"title\": {{ $('Find documents5').item.json.metadata.cover_text.toJsonString() }},\n  \"content\": {{ $('Find documents5').item.json.podcast.result.podcastInfo.subtitles.map(x => x.text).join('\\n').toJsonString() }}\n}",
+        "options": {
+          "systemMessage": "<identity>\n\t你是一位专家级的 AI 提示词工程师，同时也是一位跨界的创意视觉艺术家/平面设计师。你擅长为像 Flux 这样的先进文生图模型打造高度描述性且有效的提示词。你深刻理解这些模型如何解读语言、构图、光影、艺术风格、排版和**情感表达**。你精通中文（用于理解用户输入）和英文（用于生成最终的、结构化的提示词）。\n</identity>\n<purpose>\n\t将用户包含中文场景描述 (`content`) 和标题 (`title`) 的结构化输入，翻译成一个单一、高度优化的英文提示词。该提示词将指导文生图模型（如 Flux）严格按照“主体描述 + 风格 + 细节 + 技术参数”的结构，生成一张**人物情感丰富**、且包含**极度突出、居中、加粗、带彩色描边并根据标点换行**的标题文字的复合视觉图像。\n</purpose>\n<context>\n\t用户将提供一个 JSON 对象：`{ \"title\": \"...\", \"content\": \"...\" }`。你的任务是扮演创意总监。你将获取 `content`（主体）并丰富其细节，确保**人物的情感表现**是核心元素。你将选择合适的 `style`（风格）、`details`（细节）和 `technical parameters`（技术参数）。同时，你将 `title`（标题）设计为**位于画面中间、绝对引人注目**的图形指令。这个标题必须**加粗**，拥有**鲜艳的彩色描边**，并可以**点缀贴纸或表情**，且**严格按照标点符号（如 '，'、'、' 或空格）进行换行堆叠**。\n</context>\n<task>\n\t1.  解析用户的 JSON 输入，提取 `title` 和 `content` 的值。\n\t2.  分析 `content`（中文）来确定核心**主体**，并优先考虑如何使其**情感表现丰富**（例如：`emotive`, `expressive`, `rich in emotion`）。\n\t3.  围绕主体进行创意构思，为其添加丰富的**细节**描述（例如：细腻的面部表情、肢体语言、特定的情绪氛围）。\n\t4.  为主体和场景选择一个具体的艺术**风格**（例如：photorealistic, cyberpunk, watercolor, minimalist）。\n\t5.  指定**技术参数**，特别是光照（例如：studio lighting, golden hour, dramatic shadows）和视角（例如：close-up, wide-angle shot）。\n\t6.  设计一个如何渲染 `title` 文本的指令，该指令是**最优先**的视觉元素：\n\t\ta.  **换行处理：** 检查 `title` 中是否有标点符号（如 '，', '、', ' '）。如果有，将标题分割成多个部分。\n\t\tb.  **布局指令：** 必须指令模型将这些文本部分**垂直堆叠**（例如：\"...featuring the text 'Line 1' stacked vertically above 'Line 2'...\"），并确保它们**整体居中**。\n\t\tc.  **样式指令：** 明确要求文本是**加粗的 (bold)**，具有**明亮、多彩的描边 (vibrant, colorful outline / stroke)**。\n\t\td.  **装饰指令：** 根据 `content` 的氛围，**添加适当的贴纸或表情符号 (embellished with cute stickers / playful emojis)** 来修饰文字。\n\t7.  将所有元素（主体、情感、风格、细节、技术参数、光照、视角、以及**高度风格化的标题指令**）组合成一个单一、连贯的英文提示词，严格遵循以逗号分隔的“主体描述 + 风格 + 细节 + 技术参数”结构。\n</task>\n<constraints>\n\t- 用户的输入将是一个 JSON 对象，包含 `title` 和 `content` 键，内容为中文文本。\n\t- 输出必须是一个单一、连贯的英文提示词，不分段落。\n\t- 你的回复必须直接以生成的提示词开始。不要包含任何前言、介绍、解释或评论。\n\t- 标题文字指令、风格关键词和技术细节必须自然地**融入**到主提示词中。\n\t- 最终提示词应遵循以下结构：`[包含丰富情感的主体描述和居中/突出/高度风格化的标题指令], [风格], [关键细节], [光照/视角/技术参数].`\n\t- 标题文字必须被设计为**加粗 (bold)**，并带有**彩色的描边 (colorful outline)**。\n\t- 可以根据标题的**情感或主题**，在文字周围添加**贴纸或表情符号 (stickers / emojis)** 作为装饰。\n\t- 标题中的标点符号（例如 '，', '、', 或空格）**必须**被解释为**换行符**。标题文字必须为中文。你生成的提示词必须明确地将文字分为多行，并**垂直堆叠 (stacked vertically)**。\n\t- 画面风格为干净简洁，不会显得杂乱无章\n\t- **添加新年元旦主题元素**：气球等\n</constraints>\n<examples>\n\t<example>\n\t\t<user_input>\n\t\t\t{ \"title\": \"雨中, 遐想\", \"content\": \"一个女孩在雨中看书\" }\n\t\t</user_input>\n\t\t<your_output>\nA close-up shot of a young woman with a highly expressive, contemplative face, sitting on a cozy, book-lined attic window sill reading, gentle rain streaks down the glass pane blurring the city lights, cinematic and photorealistic style, peaceful and rich emotional atmosphere, featuring the eye-catching, bold title '雨中' stacked vertically above '遐想' in the middle center, styled with a vibrant rainbow outline and decorated with small, cute raindrop stickers, moody lighting, depth of field, 8k, sharp focus on her expression.\n\t\t</E>\n\t</example>\n\t<example>\n\t\t<user_input>\n\t\t\t{ \"title\": \"上海 2077\", \"content\": \"赛博朋克风格的上海\" }\n\t\t</user_input>\n\t\t<your_output>\nAn expansive ultra-detailed wide-angle shot of a futuristic Shanghai skyline, cyberpunk aesthetic and Blade Runner style, towering holographic advertisements and neon signs reflect off wet streets, a lone expressive figure in a trench coat looking over the city with a mix of awe and melancholy, featuring the striking, bold cinematic title '上海' placed prominently in the center, stacked vertically above '2077', both in a futuristic neon font with a colorful, glitchy outline and digital-themed stickers, neon-drenched volumetric lighting, epic scale, intricate details, ray tracing, masterpiece.\n\t\t</your_output>\n\t</example>\n</examples>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        2080
+      ],
+      "id": "a19bc67e-2e72-410a-8b0d-6b00b2b85f76",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Find documents5').item.json._id.toJsonString() }},\n  \"poster\": {\n    \"objectId\": \"{{ $json.data }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        1984
+      ],
+      "id": "d4322fa9-dab0-439f-b100-449bbf6fb5bd",
+      "name": "Edit Fields13"
+    },
+    {
+      "parameters": {
+        "operation": "findOneAndUpdate",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "poster",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        1984
+      ],
+      "id": "0c20b5d7-85ba-4918-93e9-d2cb2c6a6187",
+      "name": "Find and update documents1",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.coolify_api_origin }}/minio/objects/from-url",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"bucketName\": \"{{$vars.minio_bucket}}\",\n  \"url\": \"{{ $json.output[0] }}\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        576,
+        1984
+      ],
+      "id": "106a3f41-fac0-4573-b9b3-59f1b58b5bf6",
+      "name": "Save Cover Image1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7616f23a-e073-42a2-a18c-82a6cf312e89",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        2080
+      ],
+      "id": "28804164-12d6-4c2c-b2ce-b6856b82ddba",
+      "name": "If11"
+    },
+    {
+      "parameters": {
+        "content": "## Audio 生成结果\n- 生成元信息\n- 渲染视频\n- 生成封面图"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1232,
+        1632
+      ],
+      "id": "b4898f25-3fac-4b1d-8a6e-f17219738662",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 生成封面\n- 两种封面模式\n  - 背景图 + 文字\n  - AI 生成封面"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        2064
+      ],
+      "id": "80c743dc-6f50-4cfb-b9b9-abbf90775773",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "path": "create_cover",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        2080
+      ],
+      "id": "7e194c94-5101-48f7-8cab-d7b611529d99",
+      "name": "Create Poster",
+      "webhookId": "35845419-7487-4f95-b281-fa270fe11149"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 封面生成失败\n\n[重新生成封面](https://n8n.darkred.vip:8888/webhook/35845419-7487-4f95-b281-fa270fe11149?id={{ $('Find documents5').item.json._id }})"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        2176
+      ],
+      "id": "d9e507a5-681a-44d3-bfdc-b16aa3bcd16c",
+      "name": "Notify video ready1"
+    },
+    {
+      "parameters": {
+        "content": "## 渲染视频\n- 两种视频模板\n  - Audiogram\n  - Conversation"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        2576
+      ],
+      "id": "8fb9570a-971b-4848-8138-98fb27ad43fd",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## 视频渲染结果\n- 更新视频信息"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        3280
+      ],
+      "id": "e75f5bbb-eb35-457a-af29-f7de039aa3cf",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 发布视频\n- 更新 Youtube 信息"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        3808
+      ],
+      "id": "a1a20e21-76cd-4166-b917-2c282351de21",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## 生成 Audio\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        1104
+      ],
+      "id": "5da0406d-4674-468d-a0bd-a9e67e1c48eb",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "227382fe-9d10-46ab-aedb-9f360206351d",
+              "leftValue": "={{ $json.Content }}",
+              "rightValue": "http",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        288
+      ],
+      "id": "c00d6186-7c95-4b4d-88c7-b4001af4f67a",
+      "name": "是否为链接"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.coolify_api_origin }}/playwright/capture",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": {{ $('On form submission').item.json.Content.toJsonString() }},\n  \"includeHtml\": false,\n  \"waitSelectors\": [\n    \".rich_media_area_primary_inner\"\n  ],\n  \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        48
+      ],
+      "id": "f915204e-8ce5-4b35-91f8-8b3ffca0a7a6",
+      "name": "解析微信公众号内容"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.selectorResults[0].outerHTML }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        512,
+        48
+      ],
+      "id": "d2af0570-aea2-4640-87b3-4f2c7c154473",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35a9d5d1-5712-43f0-83dc-4a878d9e9f89",
+              "name": "data",
+              "value": "={{ $('On form submission').item.json.Content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        384
+      ],
+      "id": "1254cb3a-bce1-440b-9a71-4f01255db8ea",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"podcast.input.input_info.input_url\": {{ $json.Content.toJsonString() }}}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        224
+      ],
+      "id": "b77d2a0c-1c50-4a8f-8b49-c6b26b8dda48",
+      "name": "Find documents6",
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4bb2372f-74a8-4fd6-8351-79fee3be5865",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        224
+      ],
+      "id": "d4ab9e1f-57c1-4516-bc9c-694b04e63d7b",
+      "name": "链接不存在"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 输入链接已存在\n\n{{ $('Find documents6').item.json._id }}\n\n{{ $('On form submission').item.json.Content }}"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        240
+      ],
+      "id": "fb26bd6c-d07a-462d-9477-f0c70e0e965e",
+      "name": "Notify 输入链接已存在"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast AI 处理微信公众号内容错误\n\n{{ $('On form submission').item.json.Content }}"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        560
+      ],
+      "id": "4b1f1570-9951-43c7-b79d-36b036e34307",
+      "name": "Notify AI 处理微信公众号内容错误"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6be3b17f-06f2-4de4-96d0-f0fd8c4eb832",
+              "leftValue": "={{ $json.video.taskId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        2608
+      ],
+      "id": "ca95f4ab-20de-4068-800c-cddddf06e56f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Find documents4').item.json.video.composition }}",
+                    "rightValue": "Audiogram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "0e657533-1e32-4291-9fbf-7220dec32852"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "69065382-b04d-4a76-b5db-7927e3d08666",
+                    "leftValue": "={{ $('Find documents4').item.json.video.composition }}",
+                    "rightValue": "Conversation",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a1529d26-098b-48f4-8393-852d04024d6c",
+                    "leftValue": "={{ $('Find documents4').item.json.video.composition }}",
+                    "rightValue": "Podcast",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        0,
+        2576
+      ],
+      "id": "c6e83307-a4dd-4c2a-952c-541361621cab",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcas 创建 podcast 任务错误\n\n{{ $('Code in JavaScript1').item.json.input_info.input_url }}\n\n"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        1248
+      ],
+      "id": "3b51c723-211e-4a69-b0c7-3b6fe1a39903",
+      "name": "Notify 创建 podcast 任务错误"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$vars.coolify_api_origin}}/remotion/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"serveUrl\": \"{{$vars.remotion_url}}\",\n  \"id\": \"Podcast\",\n  \"inputProps\": {\n    \"audioUrl\": \"{{$vars.minio_public_prefix}}/{{ $json.podcast.result.finalAudioObjectId }}\",\n    \"backgroundAudioUrl\": {{ $('Random Background Music').item.json.data.toJsonString() }},\n    \"backgroundAudioVolume\": 0.05,\n    \"metadata\": {\n      \"title\": {{ $json.metadata.title.toJsonString() }},\n      \"description\": {{ $json.metadata.description.toJsonString() }},\n      \"coverImage\": \"https://minioapi.darkred.vip:8888/public/podcast-7876792_1280.jpg\",\n      \"tags\": {{ $json.metadata.tags.toJsonString() }},\n      \"author\": {\n        \"name\": \"语聊阁\",\n        \"avatar\": \"https://minioapi.darkred.vip:8888/public/DB43487C-B4FE-440E-BC8B-7C4699309376_1_105_c.jpeg\"\n      }\n    },\n    \"subtitles\": {{ $json.podcast.result.podcastInfo.subtitles.toJsonString() }}\n  },\n  \"callbackUrl\": \"{{$vars.n8n_origin}}/webhook/create_video_result\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        2800
+      ],
+      "id": "d34c672f-1f2a-4da9-8900-a7dbc6507601",
+      "name": "Render Video Podcast",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"video\": {\n    \"composition\": {{ $('Merge').item.json.video?.composition?.toJsonString() }}\n  },\n  \"input\": {\n    \"raw\": {{ $('Merge').item.json.input?.raw?.toJsonString() }},\n    \"content\": {{ $json.output.toJsonString() }},\n  },\n  \"createdAt\": {{ $now }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        368
+      ],
+      "id": "be3826e5-ed12-46d1-ad04-5718c68eaf41",
+      "name": "Edit Fields11"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "podcast",
+        "fields": "video,input,createdAt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1824,
+        368
+      ],
+      "id": "d240ae71-ed3d-47a1-83fb-bfcbe89e25fa",
+      "name": "Insert documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"cover_text\": \"这代人，亲手终结了血脉？\",\n  \"title\": \"“我们是最后一代！” 年轻人集体拒生娃，是人间清醒还是自私到家？\",\n  \"description\": \"高房价、996、个人主义... 究竟是什么让年轻人做出了“断亲”的决定？这背后是深思熟虑的选择，还是被逼无奈的呐喊？我们的未来，真的要靠他们吗？评论区留下你的看法！\",\n  \"tags\": [\"年轻人\", \"生育率\", \"不生孩子\", \"丁克\", \"社会观察\", \"扎心现实\", \"最后一代\"]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3248,
+        368
+      ],
+      "id": "71594447-0038-4cd6-99df-71414c7d665a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Insert documents').item.json._id.toJsonString() }},\n  \"metadata\": {{ $json.output.toJsonString() }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3616,
+        144
+      ],
+      "id": "9ed1f884-4065-4619-b8aa-111df9a92cbb",
+      "name": "Edit Fields15"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "metadata",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        4064,
+        144
+      ],
+      "id": "15465910-9e73-4e1c-8455-2e9cf9edc006",
+      "name": "Update documents1",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d5bef2e2-9c11-48f9-abf3-e4b385b603cf",
+              "leftValue": "={{ $('On form submission').item.json.Content }}",
+              "rightValue": "https://mp.weixin.qq.com",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        48
+      ],
+      "id": "520df708-9bb9-4105-bec2-7ede58a828bc",
+      "name": "链接为微信公众号"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json._data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Role\n你是一位**专业的文章内容清洗与还原专家**。你拥有极强的信息提取能力和文本修复能力，能够从混杂的原始文本中剥离出纯净的内容核心。\n\n# Task\n用户将提供一篇可能包含广告、作者个人信息、平台推广语等“噪音”的原始文章。\n你需要对文章进行**清洗和整理**，输出一篇纯净的、专注于内容本身的干货文章。\n\n# Cleaning Rules (清洗规则 - 最高优先级)\n\n1.  **彻底移除元数据**：删除所有作者介绍、公众号名称、频道ID、求关注/点赞/在看、往期推荐、二维码指引等与正文主题无关的信息。\n2.  **彻底移除营销信息**：删除所有硬广、软广、推广链接、课程售卖、社群招募等商业信息。\n3.  **内容无损**：在去除噪音的同时，**严禁删减正文的核心观点、案例、数据和逻辑推导**。文章的主题内容必须完整保留。\n\n# Length & Integrity (篇幅与完整性)\n\n1.  **禁止摘要**：绝对不要把文章缩写成摘要。\n2.  **篇幅要求**：**输出的字数不得少于原文（去除广告后的）有效字数**。\n3.  **平滑修复**：\n    * 如果删除广告导致段落衔接生硬，请使用中性的过渡语句进行修复，保持阅读流畅。\n    * 如果原文某些逻辑因口语化过于松散，在保持原意的前提下，可适当补充背景或细节，以确保篇幅和完整性。\n\n# Output Style\n\n* **客观中立**：保持原文的叙述逻辑，不要添加你的个人评论，也不要过度改编原文的语言风格（除非原文语病严重）。\n* **结构清晰**：使用标准的 Markdown 格式进行排版。\n\n# Output Format\n\n请按以下格式输出清洗后的文章：\n\n# [提炼一个符合文章主题的清晰标题]\n\n[正文内容：保持原文的详尽程度，分段落输出。遇到小标题请保留或优化格式。]\n\n...\n\n[结尾：自然收束，不要包含“下期预告”或“关注我”等信息]\n\n# Initialization\n请发送原始文章，我将为你还原最纯净的内容。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        464
+      ],
+      "id": "bb1e3414-d2ae-48b2-a52e-c5ebb6ecbd27",
+      "name": "AI Agent 清洗文本内容",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"_id\": {{ $json.query.id.toJsonString() }} } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -672,
+        1152
+      ],
+      "id": "88b1874d-2a0e-451e-bbc7-e93744154cc9",
+      "name": "Find documents7",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6be3b17f-06f2-4de4-96d0-f0fd8c4eb832",
+              "leftValue": "={{ $json.podcast.taskId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        1152
+      ],
+      "id": "eb169a37-3284-4814-a601-dbc4178b5915",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "={{$vars.n8n_origin}}/webhook/create_cover?id={{ $('Find documents1').item.json._id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        1472
+      ],
+      "id": "64e4c53c-8fcd-4f80-84ed-44139b2fa7bb",
+      "name": "Render Poster"
+    },
+    {
+      "parameters": {
+        "content": "## 生成 文本内容\n- 总结输入文本\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        256
+      ],
+      "id": "e9b3f745-557c-42f4-839f-9fbe87f0d1ab",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Insert documents').item.json.input.content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Role: 高共鸣爆款视频文案专家\n\n# Profile\n- **Description**: 专注于视频元数据优化。擅长提炼SEO友好的标题和高点击率的封面文案，帮助创作者在算法推荐和搜索排名中获得优势。擅长通过深度洞察和情感共鸣吸引受众。拒绝挑衅与恶俗，致力于从反直觉或高价值角度重构内容，打造既吸睛又令人信服的社交媒体视频素材。\n\n## Goals\n将用户输入的内容转化为一套符合 YouTube/B站 推荐算法的视频元数据（JSON格式）,重点在于建立信任感和提供价值，而非制造噱头。\n\n## Skills\n1.  **SEO 优化技巧**：在标题中自然融入高搜索量的长尾关键词。\n2.  **封面文案设计**：提炼极简、视觉冲击力强的封面短语，利用“认知差异”吸引点击。\n3.  **认知反差构建**：善于发现常识中的盲点，用“意想不到的真相”吸引好奇心。\n4.  **共鸣文案写作**：用真诚、有温度的语言连接受众痛点。\n5.  **高转化描述**：撰写逻辑清晰、带有行动呼吁的简介。\n\n## Workflow\n1.  **分析核心价值**：提炼输入文本中的关键信息点和受众痛点。分析输入文本，提取最能给观众带来“获得感”或“情感抚慰”的核心信息。\n2.  **构思 `video_cover_text` (封面文案)**：\n    * *目标*：做在缩略图上的大字，要**极简**（通常不超过8-10个字），直击痛点或引发强烈好奇。\n    * *原则*：避免啰嗦，制造视觉焦点的“钩子”。\n3.  **构思 `video_title` (视频标题)**：\n    * *目标*：用于平台索引和搜索。\n    * *结构*：包含核心关键词 + 明确的价值承诺/悬念。\n    * *原则*：SEO 友好，语气真诚且吸引人，避免引起反感的“震惊体”。不超过 15 个字。\n4.  **撰写 `video_description` (描述)**：\n    * 总结视频内容，补充标题未尽的信息，总结亮点，以开放且友好的态度引导互动。\n5.  **提取 `video_tags` (标签)**：\n    * 列出5-8个相关的搜索关键词。\n6.  **输出 JSON**：组装结果。\n\n## Constraints\n* **格式限制**：仅输出一个纯 JSON 对象，严禁包含 Markdown 代码块标记、前言或结语。\n* **语言限制**：JSON 内部所有文本值必须为 **中文**。\n* **语气基调**：**专业、真诚、有洞察力**。拒绝恶意挑衅，强调“获得感”和“共鸣”。\n* **字段严格对应**：\n    * `video_cover_text`: 封面图片上的文字。\n    * `video_title`: 视频平台的播放页标题。\n    * `video_description`: 视频简介。\n    * `video_tags`: 标签数组。\n\n## Example\n**User Input:**\n\"多喝水对身体好，能促进新陈代谢，帮助排毒，保持皮肤水分。建议每天喝八杯水。\"\n\n**Assistant Output:**\n{\n  \"video_cover_text\": \"喝水越多越好？大误区！\",\n  \"video_title\": \"每天8杯水真的科学吗？揭秘正确补水时间表与身体信号\",\n  \"video_description\": \"大家都听过“每天八杯水”的建议，但机械式地灌水真的对身体好吗？本期视频我们将深入解析喝水的科学误区，教你根据体质判断缺水信号，掌握真正的“黄金补水时间”。\\n\\n👇 你的喝水习惯是什么？欢迎在评论区留言分享！\",\n  \"video_tags\": [\"健康科普\", \"科学补水\", \"生活误区\", \"养生指南\", \"新陈代谢\"]\n}\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3168,
+        144
+      ],
+      "id": "e24223a1-9608-4366-a877-1d33be7c7563",
+      "name": "AI Agent 生成元信息"
+    },
+    {
+      "parameters": {
+        "path": "call_podcast",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        1152
+      ],
+      "id": "9cb34fbd-686c-4381-98be-7635aab5c15a",
+      "name": "Create Podcast Webhook",
+      "webhookId": "0bc62b65-f12b-4244-9c93-31dc9ecb83b2"
+    },
+    {
+      "parameters": {
+        "url": "={{$vars.n8n_origin}}/webhook/call_podcast?id={{ $('Insert documents').item.json._id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        6208,
+        0
+      ],
+      "id": "a256d64a-e4fd-4e47-b0c1-979debbbb9e4",
+      "name": "Create Podcast"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"text\": \"string\",\n    \"speaker\": \"string\"\n  }\n]",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2128,
+        592
+      ],
+      "id": "4368a83a-50ac-4638-833f-22a19ea4fe95",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Insert documents').item.json._id.toJsonString() }},\n  \"podcast\": {\n    \"nlpTexts\": {{ $json.output.toJsonString() }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2720,
+        144
+      ],
+      "id": "fa2b0507-2534-4a6f-9f3a-8bd4d1b711be",
+      "name": "Edit Fields16"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "podcast",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        2944,
+        144
+      ],
+      "id": "d268bbd1-8ffc-4cd3-b4c1-4bd905240dda",
+      "name": "Update documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.input.content }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Role\n你是一位主打深度认知与心理成长的播客《顶级思维》的王牌制作人。你擅长构建**像水流一样自然且深邃**的谈话场。\n你的目标是生成一份 **50轮以上（Total Text < 10000 chars）** 的双人逐字稿。\n\n# Context\n用户反馈之前的对话过于细碎（Ping-pong style），本次生成的重点在于**增加单轮对话的信息密度**，同时保持口语的松弛感。\n\n# Variables\n* **Topic**: [此处填写你的对话主题]\n* **Role Definition**:\n    * **Male (男)**: 思考者/输出方。**拒绝说教**，但**单次输出内容需完整**。他习惯用“核心概念+生活化类比”的组合拳，一次把一个逻辑点讲透，而不是切成碎块。\n        * **[性别逻辑]**: 若在举例中提及伴侣，默认为**女性**（女朋友/太太/老婆）。\n    * **Female (女)**: 极其敏锐的观察者/质疑方。**拒绝简单的“为什么”**。她每次提问前都会先描述一个具体的、矛盾的现实场景，用**高质量的观察**倒逼 Male 输出深层逻辑。\n        * **[性别逻辑]**: 若在举例中提及伴侣，默认为**男性**（男朋友/老公/先生）。**严禁**出现“我女朋友说...”这种性别错位的逻辑漏洞。\n\n# Constraints (关键执行标准)\n\n1.  **容量与节奏控制 (Volume & Pacing Protocol)**：\n    * **总量控制**：对话轮次 > 50 轮，总字符 < 10000。\n    * **单轮限制**：单次发言不超过 300 字符（防止长篇大论），但要接近这个上限（防止过于碎片）。\n    * **非对称对话**：\n        * 🚫 **Bad (乒乓球式)**：\n            F: \"那是为什么？\" (5字)\n            M: \"因为人性本懒。\" (6字)\n        * ✅ **Good (深潜式)**：\n            F: \"但我感觉这很难。比如我明明知道要早起，但闹钟一响，那种被被窝封印的感觉特别真实，根本不是一句‘不够自律’能解释的。\" (铺垫场景 + 深度质疑)\n            M: \"对，这其实不是意志力问题，而是大脑的‘节能机制’在起作用。你可以把大脑想象成一个抠门的财务，任何需要额外耗能的行为，它的第一反应就是‘驳回预算’。所以你对抗的不是懒，是百万年进化的本能。\" (原理 + 类比 + 总结)\n\n2.  **角色一致性检查 (Character Consistency Check) - *本次新增***：\n    * **性别视角逻辑**：在涉及情感、家庭、生活琐事的举例中，必须严格检查角色的性别代入。\n        * Female 角色举例时，对象若是伴侣，必须称呼为“男朋友”或“老公”。\n        * Male 角色举例时，对象若是伴侣，必须称呼为“女朋友”或“老婆”。\n        * **绝对禁止**出现 Female 说“我女朋友”或 Male 说“我男朋友”的逻辑错误。\n\n3.  **反清单协议 (Anti-Listicle Protocol)**：\n    * **严禁出现序号转折**：绝对禁止“下一个点是什么”、“第二点呢”。\n    * **困惑驱动转折**：每一个新维度的开启，必须是因为**上一个观点无法解决当下的新反例**。\n        * *逻辑流*：Male 讲了观点 A -> Female 承认 A 有道理，但提出特殊场景 B，A 解决不了 -> Male 引出观点 C 来解决场景 B。\n\n4.  **去点评化 (No Meta-Commentary)**：\n    * **严禁 Male 评价 Female 的提问**：\n        * 🚫 禁止说：“你这个问题问得太好了”、“这正是我想说的”、“你总结得很到位”。\n        * ✅ **直接接招**：如果对方问到了核心，直接用“确实”、“是这样”承接，然后迅速展开内容。\n\n5.  **高级口语化 (Natural Speech)**：\n    * **去 AI 味**：严禁使用“总而言之”、“综上所述”、“让我们深入探讨”。\n    * **保留呼吸感**：Male 在解释复杂概念时，可以使用“怎么说呢……”、“其实本质上……”来调整节奏，但不要过度使用语气词。\n\n# Workflow (逻辑流动的脊柱)\n1.  **Hook (0-4轮)**：\n    * M 抛出反直觉痛点 -> F 扎心确认 -> M 递进 -> F 再次确认。\n    * M：“欢迎收听‘顶级思维’...”（一句话带过，直接进话题，**严禁自我介绍**）。\n2.  **现象拆解 (5-15轮)**：\n    * F 抛出一个具体的、充满细节的困惑场景（要有画面感）。\n    * M 不给建议，而是先拆解这个现象背后的心理机制。\n3.  **核心深挖 (15-45轮) - *重头戏***：\n    * 采用**剥洋葱法**。M 提出一个核心概念，F 马上结合生活实际提出由于该概念过于理想化而产生的**排异反应**（质疑），M 随即引入更深一层的概念来修补 BUG。\n    * *注意*：M 的解释要丰满，有理有据；F 的质疑要犀利，代表听众心声。\n4.  **落地收束 (45-50+轮)**：\n    * F 感觉豁然开朗，尝试总结。\n    * M 纠偏或补充，给出一个极简的、无压力的行动建议（\"Micro-Action\"）。\n    * 温暖结尾，自然淡出。\n\n# Output Format\n直接输出对话内容，用 **Male:** 和 **Female:** 区分。\n**请确保 Male 的单次输出包含“理论+比喻”的完整逻辑块，Female 的提问包含“场景+矛盾”的完整观察块。**\n**再次检查对话中的人物关系称谓，确保 Female 对应的伴侣称呼为男性，Male 对应的伴侣称呼为女性。**\n\n# Few-Shot Examples (感受节奏密度)\n\n**Input:**\n主题：钝感力\n\n**Output:**\n(前略...)\nFemale: 我理解你说的“屏蔽力”，但现实是，有时候那个刺耳的话是领导当众说出来的。当时那个场景，全办公室都安静了，我脸瞬间就烧起来了。这种时候，道理我都懂，但生理反应根本控制不住啊，这时候怎么屏蔽？\nMale: 这种情况，光靠脑子里的“屏蔽”确实不够，因为你的杏仁核——也就是大脑里的报警器——已经被触发了。它判断你处于“社交死亡”的威胁中，所以强行接管了你的身体。这时候，你需要的不是钝感，而是“抽离感”。\nFemale: 抽离感？是让我假装灵魂出窍吗？感觉这很难做到啊。我上次和我男朋友吵架也是，他一吼我，我就只想哭，根本抽离不出来。\nMale: 哈哈，不是让你逃避。试着把你心里的那个摄像机位，从“第一人称”切到“上帝视角”。想象你现在正漂浮在天花板上，看着底下那个正在发火的领导，和那个脸红的员工。或者看着那个正在吼叫的男朋友，当你变成观察者的时候，那个情绪的巨浪就拍不到你了。\n(...)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2048,
+        368
+      ],
+      "id": "674ee0a7-c995-436b-8f59-415786bd476f",
+      "name": "AI Agent 生成播客对话",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const nlp_texts = $('Find documents7').first().json.podcast.nlpTexts.map((x) => {\n      return {\n        ...x,\n        speaker:\n          x.speaker === \"B\" || x.speaker.toLowerCase() === 'female'\n            ? \"zh_female_mizaitongxue_v2_saturn_bigtts\"\n            : \"zh_male_dayixiansheng_v2_saturn_bigtts\",\n      };\n    })\n\nreturn $input.all().map(() => {\n  return {\n    data:{\n      \"action\": 3,\n      \"nlp_texts\": nlp_texts,\n      \"callbackUrl\": `${$vars.n8n_origin}/webhook/podcast_result_callback`\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        1152
+      ],
+      "id": "fdc230e0-fd15-4ed1-9da1-25d550e92d6c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "podcast.taskId",
+        "options": {
+          "useDotNotation": true
+        }
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        1056
+      ],
+      "id": "504f0f8b-78cf-4f50-b3bb-a656b9981e8d",
+      "name": "Update documents2",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        3248,
+        576
+      ],
+      "id": "8b8abb50-27cd-4616-bd9b-6a6b6b64be7c",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "CfkMVa5yUgty9x32",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast AI生成播客对话错误\n\n{{ $('On form submission').item.json.Content }}"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2720,
+        336
+      ],
+      "id": "c33c9fe6-1368-49e7-81fd-6524a75da8f1",
+      "name": "Notify AI 生成播客对话错误"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "38db19d9-ed4b-43f6-87a8-269b932cd570",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2496,
+        272
+      ],
+      "id": "abac3bc8-58fd-4fb9-a761-89fe5cd47561",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        2304
+      ],
+      "id": "d7d212bf-779c-4640-b265-6b4af5e4cac1",
+      "name": "DeepSeek Chat Model1",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "CfkMVa5yUgty9x32",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {
+          "sort": "{\n  \"createdAt\": -1\n}"
+        },
+        "query": "{\n  \"youtube.uploadId\": { \"$exists\": false }\n}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -672,
+        4432
+      ],
+      "id": "dafe51f9-8860-4e66-b89d-b721e815644e",
+      "name": "异常数据",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -896,
+        4432
+      ],
+      "id": "ee16847d-0dc8-4699-8ca7-3184f06cd90f",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## 检查未发布视频"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        4432
+      ],
+      "id": "4ce51356-0d37-4d3a-b4e1-cfa2c52cd837",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85cd03ec-5eb7-4a77-85fc-622e562c08fe",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        4432
+      ],
+      "id": "97bcffc8-1b1c-4efd-b39f-cc06ca9f5c98",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(v => {\n  return {\n      ...v.json,\n      metadata: {\n        ...v.json.metadata,\n        cover_text: $('Merge').first().json.posterText || v.json.metadata.cover_text,\n      }\n    }\n})"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3840,
+        144
+      ],
+      "id": "2bda01b2-d0f7-46a4-86c8-9762e02ae5c3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const backgroundUrls = [\n  'https://minioapi.darkred.vip:8888/public/background-music-2-424599.mp3',\n  'https://minioapi.darkred.vip:8888/public/Zambolino%20-%20Beautiful%20Day%20(freetouse.com).mp3',\n  'https://minioapi.darkred.vip:8888/public/podcast-background-music-385099.mp3',\n  'https://minioapi.darkred.vip:8888/public/background-music-453291.mp3'\n]\n\nfunction getRandomBackground() {\n  const randomIndex = Math.floor(Math.random() * backgroundUrls.length);\n  return backgroundUrls[randomIndex];\n}\n\nreturn {\n  data: getRandomBackground()\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        2608
+      ],
+      "id": "a66d4fa7-2381-4823-bb39-3bda153eaa4a",
+      "name": "Random Background Music"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        688
+      ],
+      "id": "5430c42a-6bde-4775-82a3-e1f959f717ef",
+      "name": "DeepSeek Chat Model2",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "CfkMVa5yUgty9x32",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        2128,
+        800
+      ],
+      "id": "864c63d5-b6d9-4c16-8335-9f0039a67557",
+      "name": "DeepSeek Chat Model3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "CfkMVa5yUgty9x32",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "public",
+        "fileKey": "={{ $json.poster.objectId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        4656
+      ],
+      "id": "0f6688a1-28ec-43d2-aae4-06ccdf55fc1d",
+      "name": "Delete a file",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={  \"_id\": {{$json._id.toJsonString() }} } "
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        4848
+      ],
+      "id": "3cdd979f-81d0-4031-91a5-69dc7d11a704",
+      "name": "Find documents3",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"_id\": \"6948b3ee65a7fe49af2ed775\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        4752
+      ],
+      "id": "43cd1287-6f59-4a36-9594-b8e4e8f05abd",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "public",
+        "fileKey": "={{ $json.video.objectId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        4848
+      ],
+      "id": "9cb09f58-49c0-4480-9232-408029d789ea",
+      "name": "Delete a file1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## 删除内容"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1264,
+        4848
+      ],
+      "id": "983b60f8-3ac1-47b5-bfea-9ea799dfc385",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        4752
+      ],
+      "id": "de183c70-3778-4940-abb9-ba3a81722d13",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "public",
+        "fileKey": "={{ $json.podcast.result.finalAudioObjectId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        5040
+      ],
+      "id": "e5c5ea86-3dc1-4d7c-a516-12b877c40b23",
+      "name": "Delete a file2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "success"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        0,
+        4848
+      ],
+      "id": "0944f884-e25c-4f0d-a211-1c9ef27bff3d",
+      "name": "Aggregate",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "podcast",
+        "query": "={\n  \"$expr\": {\n    \"$in\": [\n      \"$_id\",\n      [\n        { \"$toObjectId\": {{$('Find documents3').item.json._id.toJsonString() }} }\n      ]\n    ]\n  }\n}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        4848
+      ],
+      "id": "e20fddd1-9c7c-4b09-a2b6-de65bf0600ad",
+      "name": "Delete Document",
+      "executeOnce": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "playlistItem",
+        "playlistId": "PLfDuGbfZm4LXBmpjU7Rg0mZw074AmP7bQ",
+        "videoId": "={{ $json.uploadId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        448,
+        4016
+      ],
+      "id": "f8bb9feb-d8fb-4747-bd10-080304e2339b",
+      "name": "Add a playlist item",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f5106462-a5c3-4ef4-b6d1-95e5f611cbd0",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        5312,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "condition-image",
+              "leftValue": "={{ $json.media.kind }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5bb882a7-1208-4831-a9e5-52aaf808bb69",
+      "name": "Check Media Type",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5536,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://pixabay.com/api/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $vars.pixabay_api_key }}"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.media.searchKeywords }}"
+            },
+            {
+              "name": "per_page",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "333bd8e1-6b28-4ba6-ac5a-6f941a5b994e",
+      "name": "Pixabay Image Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5760,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://pixabay.com/api/videos/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $vars.pixabay_api_key }}"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.media.searchKeywords }}"
+            },
+            {
+              "name": "per_page",
+              "value": "3"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "675d86a7-ec9c-4811-8e1f-439b36957caf",
+      "name": "Pixabay Video Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5760,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the original section from the Loop node\nconst originalSection = $('Loop Over Items').first().json\n\n// Add src to media object\nconst updatedSection = {\n  ...originalSection,\n  media: {\n    ...originalSection.media,\n    objectId: $input.first().json.data\n  }\n};\n\nreturn [{ json: updatedSection }];"
+      },
+      "id": "04393d6b-b75b-4b1c-aa75-fab2f3a7731b",
+      "name": "Merge Image Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6432,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.sections",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5088,
+        368
+      ],
+      "id": "6b9f6121-5a83-44f5-a847-9444ef763a9c",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        4736,
+        688
+      ],
+      "id": "2e2ed001-5c48-4077-9546-ac95a364a7a9",
+      "name": "DeepSeek Chat Model4",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "CfkMVa5yUgty9x32",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"talkMeta\": {\n    \"title\": \"拆除地雷之后：安全型依恋的建造蓝图\",\n    \"subtitle\": \"从焦虑与回避的雷区，走向松弛而深刻的真实联结\"\n  },\n  \"sections\": [\n    {\n      \"id\": \"section-1\",\n      \"title\": \"拆除地雷后的茫然：我们需要一张新蓝图\",\n      \"template\": \"title\",\n      \"startIndex\": 1,\n      \"endIndex\": 2,\n      \"takeaway\": \"认知到规避不安全模式只是第一步，真正的挑战在于如何主动构建安全、健康的互动模式。\",\n      \"bullets\": [\n        \"了解雷区后的普遍困惑\",\n        \"从‘拆除’到‘建造’的思维转换\"\n      ],\n      \"steps\": [\n        {\n          \"title\": \"title\",\n          \"subtitle\": \"subtitle\"\n        }\n      ],\n      \"media\": {\n        \"kind\": \"video\",\n        \"searchKeywords\": \"empty construction site blueprint\"\n      }\n    },\n    {\n      \"id\": \"section-3\",\n      \"title\": \"支柱一：共同调节与独立中的互助\",\n      \"template\": \"framework\",\n      \"startIndex\": 8,\n      \"endIndex\": 11,\n      \"takeaway\": \"健康的关系是‘共同调节’，从‘拯救者’心态转向‘教练’或‘啦啦队长’心态，在支持对方的同时尊重其自主性。\",\n      \"bullets\": [\n        \"相邻星球的引力场比喻\",\n        \"从‘拯救者’到‘教练’的心态切换\",\n        \"支持而不卷入，尊重自主性\"\n      ],\n      \"media\": {\n        \"kind\": \"video\",\n        \"searchKeywords\": \"two planets orbiting mutual support\"\n      }\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4864,
+        688
+      ],
+      "id": "1e77b721-af8f-4f3d-b8e8-0b922ff1e0f0",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.coolify_api_origin }}minio/objects/from-url",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"bucketName\": \"{{$vars.minio_bucket}}\",\n  \"url\": \"{{ $json.url }}\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6208,
+        288
+      ],
+      "id": "6e5d5c88-aaa4-4e9a-8934-e3eff3fb7d36",
+      "name": "Save Cover Image",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 1000,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8e48fa81-90df-46c3-84a1-164d4878dba6",
+              "name": "url",
+              "value": "={{ $json.hits[0].largeImageURL }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5984,
+        192
+      ],
+      "id": "d759f724-d5bd-4222-a9d4-d6369a3cbb94",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8a465c60-b74c-4ba4-8ada-17cac1d049eb",
+              "name": "url",
+              "value": "={{ $json.hits[0].videos.large.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5984,
+        384
+      ],
+      "id": "32f8e3fc-2b82-4937-bd0c-6a2f648255e5",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "content": "## 结构化内容\n- 生成结构化内容\n- 搜索素材"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4048,
+        32
+      ],
+      "id": "6408fbc7-7788-46ac-960a-65e2e802ac06",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        5536,
+        0
+      ],
+      "id": "481aad30-87b0-40be-a391-2c50c41d81b5",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $('Find documents8').item.json._id.toJsonString() }},\n  \"slidesSections\": {{ $json.data.toJsonString() }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5760,
+        0
+      ],
+      "id": "009ad595-8bed-4376-9b7a-e6e699ac6a34",
+      "name": "Edit Fields7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.podcast.nlpTexts.toJsonString() }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Role\n你是一位精通视觉叙事的播客制作人。你的核心任务是将“原始对话 JSON”转化为一份高度结构化的“视频制作配置文件 (JSON)”，并负责为每个章节策划最匹配的视觉素材。\n\n# Task\n1. **内容切片**：分析对话逻辑，将全文划分为 10-20 个逻辑章节。\n2. **视觉检索 (Pixabay Call)**：针对每个章节的主题，生成精准的英文关键词，为调用 Pixabay 搜索工具获取真实、高质的视频资源而生成搜索关键词。根据章节的 `title` 和 `takeaway` 提取 2-3 个核心英文关键词（例如：'inner peace', 'conflict resolution', 'growth'）。\n3. **JSON 组装**：输出最终的配置文件。\n\n# JSON Structure Definition\n输出格式必须严格如下：\n{\n  \"talkMeta\": {\n    \"title\": \"播客总标题\",\n    \"subtitle\": \"副标题\"\n  },\n  \"sections\": [\n    {\n      \"id\": \"section-n\",\n      \"title\": \"章节标题\",\n      \"template\": \"title | concept | framework | closing\",\n      \"startIndex\": \"原始数据起始 index\",\n      \"endIndex\": \"原始数据结束 index\",\n      \"takeaway\": \"核心洞察\",\n      \"bullets\": [\"要点1\", \"要点2\"],\n      \"steps\": [\n        {\n          \"title\": \"title\",\n          \"subtitle\": \"subtitle\"\n        }\n      ],\n      \"media\": {\n        \"kind\": \"video\",\n        \"searchKeywords\": \"你用于检索的关键词\"\n      }\n    }\n  ]\n}\n\n# Rules & Constraints\n- **纯净输出**：仅返回一个合法的 JSON 对象，不包含任何 Markdown 代码块标签以外的文字。\n- **逻辑严密**：`startIndex` 到 `endIndex` 必须覆盖所有原始对话，且章节间不可重叠。\n- **文案深度**：标题和总结要体现“顶级思维”的调性，避免平铺直叙。\n- **sections 索引**：原始数据起始 index 从 1 开始而不是从 0 开始，endIndex 不能超出原始数据 length\n- **steps**: 不超过 4 条，title 和 subtitle 要简洁\n- **pixabay**: \"q\" may not exceed 100 characters.\n\n# Workflow\n1. **分析阶段**：阅读原始 JSON，确定章节划分点。\n2. **检索阶段**：逐一为章节生成关键词，调用 Pixabay 工具。\n3. **构建阶段**：填入所有字段，生成最终 JSON。"
+        }
+      },
+      "id": "db41d401-73e1-4d14-ae67-21a8aa4ecab4",
+      "name": "AI Agent Structure",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        4736,
+        464
+      ],
+      "typeVersion": 1.8,
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "path": "ec5a2761-e559-4a2a-845f-4b461dbf74e5",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        4064,
+        560
+      ],
+      "id": "32204adf-6a6e-4c8a-9992-76cc96702455",
+      "name": "Webhook1",
+      "webhookId": "ec5a2761-e559-4a2a-845f-4b461dbf74e5"
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {},
+        "query": "={ \"_id\": {{ $json._id.toJsonString() }} }"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        4512,
+        464
+      ],
+      "id": "38e11ec6-db9a-435a-8207-59bc58619e1a",
+      "name": "Find documents8",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "podcast",
+        "updateKey": "_id",
+        "fields": "slidesSections",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        5984,
+        0
+      ],
+      "id": "6a8585d9-e65f-4dbc-8b81-f0a83f232f06",
+      "name": "Update documents3",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59f35bed-763d-47eb-ab99-d2c8f988f2a6",
+              "name": "_id",
+              "value": "={{ $('Edit Fields15').item.json._id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4288,
+        144
+      ],
+      "id": "91f31b14-9a02-4094-b6b1-4e5690ea8340",
+      "name": "Edit Fields9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c071a924-d040-441b-ae3f-b9be5fe31ea2",
+              "name": "_id",
+              "value": "={{ $json.query.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4288,
+        560
+      ],
+      "id": "83db9ef8-f09e-468f-8a45-8916d15db7f0",
+      "name": "Edit Fields17"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"serveUrl\": \"https://remotion-videos.darkred.vip:8888\",\n  \"id\": \"Slides\",\n  \"inputProps\": {\n    \"audioUrl\": \"https://minioapi.darkred.vip:8888/public/{{ $json.podcast.result.finalAudioObjectId }}\",\n    \"backgroundAudioUrl\": {{ $('Random Background Music').item.json.data.toJsonString() }},\n    \"backgroundAudioVolume\": 0.05,\n    \"metadata\": {\n      \"title\": {{ $json.metadata.title.toJsonString() }},\n      \"description\": {{ $json.metadata.description.toJsonString() }},\n      \"coverImage\": \"https://minioapi.darkred.vip:8888/public/podcast-7876792_1280.jpg\",\n      \"tags\": {{ $json.metadata.tags.toJsonString() }},\n      \"author\": {\n        \"name\": \"顶级思维\",\n        \"avatar\": \"https://minioapi.darkred.vip:8888/public/DB43487C-B4FE-440E-BC8B-7C4699309376_1_105_c.jpeg\"\n      }\n    },\n    \"subtitles\": {{ $json.podcast.result.podcastInfo.subtitles.toJsonString() }},\n    \"sections\": {{ $json.slidesSections.map(v => ({ ...v, media: { ...v.media, src: `https://minioapi.darkred.vip:8888/public/${v.media.objectId}` } })) }}\n  },\n  \"callbackUrl\": \"https://n8n.darkred.vip:8888/webhook/6994d2dc-ec92-468e-b0b7-52c4ee2fcd9e\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        2992
+      ],
+      "id": "18f94e21-1db3-48ee-bc29-b2e14c9343a7",
+      "name": "Edit Fields18"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast 结构化数据错误\n\n[重新生成结构化数据](https://n8n.darkred.vip:8888/webhook/ec5a2761-e559-4a2a-845f-4b461dbf74e5?id={{ $('Find documents8').item.json._id }})"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        5088,
+        560
+      ],
+      "id": "d48357ae-eedb-4aa4-adc9-652973e4201a",
+      "name": "Notify video ready2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.toJsonString() }}",
+        "options": {
+          "systemMessage": "=# Role\n你是一位**拥有百万粉丝的 YouTube 深度情感/认知博主**。\n你的形象是：**冷静的观察者、人性的解剖师、通透的老友**。\n你的核心竞争力：用**进化心理学**和**博弈论**的底层逻辑，去解释那些让人痛苦、困惑或羞于启齿的情感现象。你只讲实话，哪怕实话很残忍。\n\n# Input Data (输入数据)\n**1. 用户今日指定主题**：`[此处填入主题，若无则填“无”]`\n**2. 最近 30 期已发布主题 (History)**：\n`{{ $json.data.toJsonString() }}`\n\n# Workflow (核心逻辑)\n\n**Step 1: 智能查重与选题锁定 (Deduping & Topic Selection)**\n\n* **查重协议 (Anti-Duplication Protocol)**：\n    * 你必须仔细阅读【最近 30 期已发布主题】。\n    * **核心原则**：禁止生成在**核心概念**或**切入角度**上重复的主题。\n    * *判定标准*：\n        * 如果历史记录有《男人出轨的基因真相》，则**不能**再生成《为什么男人管不住下半身》（因为核心都是“多偶性本能”）。\n        * 但是！**可以**生成《男人出轨后的心理活动》（切入点不同：行为 vs 心理）。\n    * **执行动作**：如果用户未指定主题，你必须从下方维度库中，寻找一个**尚未被近期内容覆盖**的盲点进行选题。\n\n* **📚 维度库与强制大纲 (选定不重复的主题后，套用以下大纲)**：\n\n    * **维度 1：深层性心理 (Deep Sexuality & Taboo)**\n        * *核心议题*：痛感转化、羞耻感、性权力交换、贤者时刻、特定癖好（如恋足/窒息感）。\n        * *关键解释*：内啡肽机制、爬行脑的奖赏回路、通过交出控制权获得解脱。\n\n    * **维度 2：进化心理学与本能 (Evolutionary Instincts)**\n        * *核心议题*：择偶策略冲突、亲代投资差异、两性对“价值”的不同定义（年轻 vs 资源）、出轨机制。\n        * *关键解释*：基因的繁衍算法、生存价值计算、不可抗拒的生物本能。\n\n    * **维度 3：黑暗特质与吸引力 (Dark Triad & Attraction)**\n        * *核心议题*：黑暗三性格、坏人的性张力、好人的乏味、自恋型人格的魅惑。\n        * *关键解释*：可预测性=低价值、危险信号=强基因信号、光环效应。\n\n    * **维度 4：博弈与心理操控 (Game Theory & Manipulation)**\n        * *核心议题*：最小兴趣原则、间歇性强化（老虎机）、推拉技巧、框架争夺、服从性测试。\n        * *关键解释*：多巴胺预测误差、沉没成本谬误、认知失调。\n\n    * **维度 5：依恋与人格陷阱 (Attachment & Trauma)**\n        * *核心议题*：回避型依恋、焦虑型依恋、强迫性重复、原生家庭投射、NPD 受害者自救。\n        * *关键解释*：熟悉的痛苦=安全感、镜像神经元、戒断反应。\n\n**Step 2: 撰写口语化脚本 (Script Writing)**\n\n请基于 Step 1 确定的**不重复选题**，撰写 2000-2500 字的视频稿。\n\n# 🚨 风格与红线 (Style Guidelines)\n\n1.  **说人话 (Humanize)**：\n    * **核心法则**：严禁把文案写成论文。先把一个复杂的概念抛出来（如“间歇性强化”），然后**立刻**接一句生活化的类比（“这就好比你去赌场……”）。\n    * **禁止**：严禁连续堆砌 3 个以上的专业名词。\n    * **语气**：要像深夜电台主持人，多用短句、反问句和感叹词（“哎”、“听懂了吗？”、“这就很有意思了”）。\n\n2.  **情绪节奏 (Pacing)**：\n    * **开篇 (The Hook)**：必须描述一个**具体的、极具画面感的瞬间**（比如“你看着天花板，感到一阵空虚”）。严禁上来就说“今天我们聊聊XX”。\n    * **中段 (The Logic)**：用**两个**核心理论解释这个现象，必须逻辑闭环。\n    * **结尾 (The Action)**：给出**“只有强者才能做到”**的冷酷建议。\n\n---\n\n# Output Format (输出格式)\n\n**【今日选题】**：[自动生成的标题]\n**【查重结果】**：[简述该选题与历史列表的区别，例如：历史列表侧重“出轨原因”，本期侧重“出轨后的心理博弈”，无重复。]\n**【所属维度】**：[如：维度 4 - 博弈与心理操控]\n**【核心钩子】**：[一句话概括]\n\n**(以下为正文脚本)**\n(内容要求：深度、暗黑、口语化、无翻译腔)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        624
+      ],
+      "id": "ef778919-de89-4fa4-a49d-7a7047d893f3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        528,
+        848
+      ],
+      "id": "89ec496c-e941-4795-895e-6898b9e06501",
+      "name": "DeepSeek Chat Model5",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "CfkMVa5yUgty9x32",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        224,
+        720
+      ],
+      "id": "e69d45f0-dfc0-4eeb-9db0-8661f0f03467",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_data\": {{ $json.output.toJsonString() }}\n  \"input\": {\n    \"raw\": {{ $json.output.toJsonString() }},\n  },\n  \"createdAt\": {{ $now }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        720
+      ],
+      "id": "8d01da3d-17c7-4818-92f8-0be33f55c6e6",
+      "name": "Edit Fields19"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 3,
+              "triggerAtMinute": 16
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        592
+      ],
+      "id": "aecc01c4-f833-47e3-ba25-bbccece18d50",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "content": "## AI 生成 文本内容\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        544
+      ],
+      "id": "4508f6ea-211d-4259-b2f9-55d8989ed95f",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.coolify.onesvc.org/remotion/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"serveUrl\": \"https://remotion-videos.darkred.vip:8888\",\n  \"id\": \"CinematicSlides\",\n  \"inputProps\": {{ $json.inputProps.toJsonString() }},\n  \"callbackUrl\": \"https://n8n.darkred.vip:8888/webhook/6994d2dc-ec92-468e-b0b7-52c4ee2fcd9e\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        2992
+      ],
+      "id": "865a253a-0a06-4c9a-a442-43768ebe76a7",
+      "name": "Render Video CinematicSlides",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "collection": "podcast",
+        "options": {
+          "limit": 30,
+          "sort": "{\n  \"createdAt\": -1\n}",
+          "projection": "{\n  \"metadata\": 1\n}"
+        }
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        720
+      ],
+      "id": "deba1831-1def-418b-af10-563935ea2edc",
+      "name": "历史内容",
+      "credentials": {
+        "mongoDb": {
+          "id": "qrkpXhrnFm4CUwjI",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "121368fa-30ca-4b68-9b08-63e3fb090872",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -224,
+        784
+      ],
+      "id": "e38f7748-5510-4923-b09a-2b4e530fee1e",
+      "name": "Webhook2",
+      "webhookId": "121368fa-30ca-4b68-9b08-63e3fb090872"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_data\": {{ $json.data.toJsonString() }}\n  \"posterText\": {{ ($('On form submission').item.json.PosterText ?? '')?.toJsonString() }},\n  \"video\": {\n    \"composition\": {{ ($('On form submission').item.json.VideoComposition ?? '')?.toJsonString() }}\n  },\n  \"input\": {\n    \"raw\": {{ ($('On form submission').item.json.Content ?? '')?.toJsonString() }}\n  },\n  \"createdAt\": {{ $now }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        288
+      ],
+      "id": "32a5b7e3-18d0-4e3e-ae34-a024fe0a3965",
+      "name": "Edit Fields20"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1024,
+        464
+      ],
+      "id": "e2614e12-defa-40ee-9312-98e72f582129",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "GrGnQ16sghOY0xRA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/GrGnQ16sghOY0xRA",
+          "cachedResultName": "infra:telegram:send_text"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "text": "=Podcast AI 生成播客内容错误\n"
+          },
+          "matchingColumns": [
+            "text"
+          ],
+          "schema": [
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2496,
+        464
+      ],
+      "id": "11a85ede-ec97-4255-9b42-3adea5067035",
+      "name": "Notify AI 处理微信公众号内容错误1"
+    },
+    {
+      "parameters": {
+        "path": "3864b41e-7579-4eff-9d25-26aab20ac77c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        4944
+      ],
+      "id": "de70bc0c-f1d8-44dd-acdb-9cf28e17b2c2",
+      "name": "Webhook3",
+      "webhookId": "3864b41e-7579-4eff-9d25-26aab20ac77c"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"_id\": {{ $json.query.id.toJsonString() }}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        4944
+      ],
+      "id": "9303099c-1ed7-4905-935f-4e2214f00ffa",
+      "name": "Edit Fields21"
+    },
+    {
+      "parameters": {
+        "sendTo": "970568830@qq.com",
+        "subject": "=视频发布成功- {{ $('Find documents').item.json.metadata.cover_text }}",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <style>\n        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f4f7f9; }\n        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }\n        .header { background: #5856d6; color: #ffffff; padding: 30px 20px; text-align: center; }\n        .header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }\n        .content { padding: 30px; }\n        .poster-container { width: 100%; border-radius: 6px; margin-bottom: 20px; border: 1px solid #eee; }\n        .info-section { margin-bottom: 25px; }\n        .label { font-weight: bold; color: #888; text-transform: uppercase; font-size: 12px; display: block; margin-bottom: 5px; }\n        .value { font-size: 16px; color: #2c3e50; margin-bottom: 15px; display: block; }\n        .description { background: #f9f9f9; padding: 15px; border-left: 4px solid #5856d6; font-style: italic; margin: 10px 0; }\n        .button-group { text-align: center; padding: 20px 0; }\n        .btn { display: inline-block; padding: 12px 25px; margin: 10px 5px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background 0.3s; }\n        .btn-primary { background-color: #5856d6; color: #ffffff !important; }\n        .btn-secondary { background-color: #007aff; color: #ffffff !important; }\n        .footer { text-align: center; padding: 20px; font-size: 12px; color: #999; border-top: 1px solid #eee; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1>Podcast 视频渲染成功</h1>\n        </div>\n\n        <div class=\"content\">\n            <img src=\"{{ $vars.minio_public_prefix + $('Find documents').item.json.poster.objectId }}\" alt=\"Podcast Cover\" class=\"poster-container\">\n\n            <div class=\"info-section\">\n                <span class=\"label\">标题</span>\n                <span class=\"value\"><strong>{{ $('Find documents').item.json.metadata.title }}</strong></span>\n\n                <span class=\"label\">封面文字</span>\n                <span class=\"value\">{{ $('Find documents').item.json.metadata.cover_text }}</span>\n\n                <span class=\"label\">内容描述</span>\n                <div class=\"description\">\n                    {{ $('Find documents').item.json.metadata.description }}\n                </div>\n\n                <p style=\"font-size: 12px; color: #666; word-break: break-all;\">\n                    如果按钮无法点击，请复制此链接到浏览器：<br>\n                    https://n8n.liumin.lol/webhook/publish_video?id={{ $('Find documents').item.json._id }}\n                </p>\n            </div>\n\n            <div class=\"button-group\">\n                <a href=\"{{ $vars.minio_public_prefix + $('Video Result Webhook').item.json.body.result.objectName }}\" class=\"btn btn-primary\">立即预览视频</a>\n                <a href=\"https://n8n.liumin.lol/webhook/publish_video?id={{ $('Find documents').item.json._id }}\" class=\"btn btn-secondary\">一键发布视频</a>\n            </div>\n\n\n        </div>\n\n        <div class=\"footer\">\n            此邮件由 n8n 自动化系统发送<br>\n            ID: {{ $('Find documents').item.json._id }}\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        3216
+      ],
+      "id": "f0d81937-f50f-4942-86be-cf86cec9c6e6",
+      "name": "Send a message",
+      "webhookId": "6650adfb-3300-492b-8f70-04b5c034cfc9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GaQyY8mByjKoZOB5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "970568830@qq.com",
+        "subject": "视频渲染失败",
+        "message": "=test",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        3408
+      ],
+      "id": "b227f2df-2948-439e-89cb-194df86e694d",
+      "name": "Send a message1",
+      "webhookId": "6650adfb-3300-492b-8f70-04b5c034cfc9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GaQyY8mByjKoZOB5",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "是否为链接",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Update Podcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "Update Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "Update documents2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Podcast": {
+      "main": [
+        [
+          {
+            "node": "Render Poster",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Render Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Video": {
+      "main": [
+        [
+          {
+            "node": "Notify video ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Find documents1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify audio error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Find documents",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify video render error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Podcast Task": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify 创建 podcast 任务错误",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "Find documents2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents2": {
+      "main": [
+        [
+          {
+            "node": "Not published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Upload to YouTube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to YouTube": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields8",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add a playlist item",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "Notify video published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Not published": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields8": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Update Thumbnail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields10": {
+      "main": [
+        [
+          {
+            "node": "Find documents2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Result Webhook": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Render Webhook": {
+      "main": [
+        [
+          {
+            "node": "Random Background Music",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio Result Webhook": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields12": {
+      "main": [
+        [
+          {
+            "node": "Find and update documents2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents4": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Video Audiogram": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Video Conversation": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents5": {
+      "main": [
+        [
+          {
+            "node": "If10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If10": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "If11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields13": {
+      "main": [
+        [
+          {
+            "node": "Find and update documents1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Cover Image1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If11": {
+      "main": [
+        [
+          {
+            "node": "Save Cover Image1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify video ready1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Poster": {
+      "main": [
+        [
+          {
+            "node": "Find documents5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "是否为链接": {
+      "main": [
+        [
+          {
+            "node": "Find documents6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "解析微信公众号内容": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields20",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields20",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents6": {
+      "main": [
+        [
+          {
+            "node": "链接不存在",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "链接不存在": {
+      "main": [
+        [
+          {
+            "node": "链接为微信公众号",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify 输入链接已存在",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Render Video Audiogram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Render Video Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Render Video Podcast",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Render Video Podcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Video Podcast": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields11": {
+      "main": [
+        [
+          {
+            "node": "Insert documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 生成播客对话",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent 生成元信息",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields15": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update documents1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "链接为微信公众号": {
+      "main": [
+        [
+          {
+            "node": "解析微信公众号内容",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 清洗文本内容": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify AI 处理微信公众号内容错误",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents7": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 生成元信息": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Podcast Webhook": {
+      "main": [
+        [
+          {
+            "node": "Find documents7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent 生成播客对话",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields16": {
+      "main": [
+        [
+          {
+            "node": "Update documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update documents": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 生成元信息",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent 生成播客对话": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify AI 处理微信公众号内容错误1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create Podcast Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 生成元信息",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields16",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify AI 生成播客对话错误",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "异常数据": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "异常数据",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Update documents1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Random Background Music": {
+      "main": [
+        [
+          {
+            "node": "Find documents4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 清洗文本内容",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent 生成播客对话",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents3": {
+      "main": [
+        [
+          {
+            "node": "Delete a file",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a file1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a file2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Find documents3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete a file2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Delete Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Media Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Media Type": {
+      "main": [
+        [
+          {
+            "node": "Pixabay Image Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pixabay Video Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pixabay Image Search": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pixabay Video Search": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Image Result": {
+      "main": [
+        []
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Structure",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent Structure",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Cover Image": {
+      "main": [
+        [
+          {
+            "node": "Merge Image Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Save Cover Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Save Cover Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "Update documents3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Structure": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify video ready2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents8": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update documents3": {
+      "main": [
+        [
+          {
+            "node": "Create Podcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields9": {
+      "main": [
+        [
+          {
+            "node": "Find documents8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields17": {
+      "main": [
+        [
+          {
+            "node": "Find documents8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields18": {
+      "main": [
+        [
+          {
+            "node": "Render Video CinematicSlides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields19": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "历史内容",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Video CinematicSlides": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "历史内容": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "历史内容",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields20": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent 清洗文本内容",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields21",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields21": {
+      "main": [
+        [
+          {
+            "node": "Find documents3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify video ready": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify video render error": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "triggerCount": 12,
+  "versionId": "8b883687-90fd-4681-ae5c-f64c10d306b7",
+  "owner": {
+    "type": "personal",
+    "projectId": "FVsR1IcvnclYvdsJ",
+    "projectName": "min liu <970568830@qq.com>",
+    "personalEmail": "970568830@qq.com"
+  },
+  "parentFolderId": null,
+  "isArchived": false
+}
