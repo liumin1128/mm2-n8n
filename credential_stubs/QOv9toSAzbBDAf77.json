@@ -1,0 +1,17 @@
+{
+  "id": "QOv9toSAzbBDAf77",
+  "name": "VolcEngine AI Enhanced account 2",
+  "type": "volcengineAiEnhancedApi",
+  "data": {
+    "accessToken": "",
+    "accessKeyId": "",
+    "secretAccessKey": ""
+  },
+  "ownedBy": {
+    "type": "personal",
+    "projectId": "FVsR1IcvnclYvdsJ",
+    "projectName": "min liu <970568830@qq.com>",
+    "personalEmail": "970568830@qq.com"
+  },
+  "isGlobal": false
+}
