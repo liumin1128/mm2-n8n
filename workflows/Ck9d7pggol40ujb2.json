@@ -629,7 +629,7 @@
     "availableInMCP": false
   },
   "triggerCount": 2,
-  "versionId": "7bb2abd6-a390-469e-aaf4-8f2f006c9c74",
+  "versionId": "5b070932-fa98-4f57-b6dd-52fdb0c999fa",
   "owner": {
     "type": "personal",
     "projectId": "FVsR1IcvnclYvdsJ",
@@ -637,5 +637,5 @@
     "personalEmail": "970568830@qq.com"
   },
   "parentFolderId": null,
-  "isArchived": false
+  "isArchived": true
 }

@@ -1,29 +1,14 @@
 {
   "id": "BB6tnLbvC1ra1Uh3",
   "name": "My workflow 2",
-  "nodes": [
-    {
-      "parameters": {
-        "path": "e4323136-3af5-472f-aea3-67089c0cc3e2"
-      },
-      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
-      "typeVersion": 2,
-      "position": [
-        0,
-        0
-      ],
-      "id": "a41411eb-a61e-4cd0-b24b-ed5f9519ddd2",
-      "name": "MCP Server Trigger",
-      "webhookId": "e4323136-3af5-472f-aea3-67089c0cc3e2"
-    }
-  ],
+  "nodes": [],
   "connections": {},
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
   },
   "triggerCount": 1,
-  "versionId": "d1958fcd-2b87-4602-a446-91b2997dda30",
+  "versionId": "cafa3005-b489-4931-920b-31de374fd9e7",
   "owner": {
     "type": "personal",
     "projectId": "FVsR1IcvnclYvdsJ",
@@ -31,5 +16,5 @@
     "personalEmail": "970568830@qq.com"
   },
   "parentFolderId": null,
-  "isArchived": false
+  "isArchived": true
 }

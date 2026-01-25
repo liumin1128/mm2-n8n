@@ -1,0 +1,641 @@
+{
+  "id": "C7EZ8TXrRf29DFyz",
+  "name": "视频生成",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        536
+      ],
+      "id": "4d36ace4-c428-46e0-b563-977d77f2bfd8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mm2.liumin.lol/podcast/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        256,
+        104
+      ],
+      "id": "367d96db-a4f9-452f-bfb1-79ba9ae48762",
+      "name": "生成音频"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mm2.liumin.lol/api/remotion/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"inputId\":\"{{$json.body.inputId}}\",\n\"taskId\":\"{{$json.body.taskId}}\",\n  \"srtUrl\": \"{{ $json.body.subtitleUrl }}\",\n  \"duration\": {{ $json.body.duration }},\n  \"audioUrl\": \"{{ $json.body.audioUrl}}\",\n  \"backgroundImageUrl\": \"https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=1920&h=1080&fit=crop\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"subtitleStyle\": {\n    \"fontSize\": 48,\n    \"fontColor\": \"#FFFFFF\",\n    \"backgroundColor\": \"rgba(0, 0, 0, 0.7)\",\n    \"fontFamily\": \"Arial, sans-serif\",\n    \"bottom\": 100\n  },\n  \"vinylRecord\": {\n    \"enabled\": true,\n    \"logoSrc\": \"https://r2.liumin.lol/Other/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260121121325_106_38.png\",\n    \"size\": 240,\n    \"rotationSpeed\": 5,\n    \"waveRingCount\": 2,\n    \"waveColor\": \"#FFFFFF\",\n    \"position\": {\n      \"left\": 180,\n      \"top\": 220\n    }\n  },\n  \"titleConfig\": {\n    \"enabled\": true,\n    \"title\": \"朵朵的职场攻略\",\n    \"subtitle\": \"每日职场干货分享\",\n    \"titleStyle\": {\n      \"fontSize\": 48,\n      \"fontColor\": \"#FFFFFF\",\n      \"fontFamily\": \"\\\"ZCOOL KuaiLe\\\", \\\"Yuanti SC\\\", \\\"PingFang SC\\\", \\\"Comic Sans MS\\\", cursive\",\n      \"fontWeight\": 700\n    },\n    \"subtitleStyle\": {\n      \"fontSize\": 32,\n      \"fontColor\": \"rgba(255, 255, 255, 0.8)\",\n      \"fontFamily\": \"\\\"ZCOOL KuaiLe\\\", \\\"Yuanti SC\\\", \\\"PingFang SC\\\", \\\"Comic Sans MS\\\", cursive\",\n      \"fontWeight\": 400\n    },\n    \"position\": {\n      \"top\": 280,\n      \"left\": 580\n    },\n    \"align\": \"left\",\n    \"gap\": 12\n  },\n  \"episodeTitle\": {\n    \"enabled\": true,\n    \"title\": \"001: 职场新人如何快速成长\",\n    \"style\": {\n      \"fontSize\": 80,\n      \"fontColor\": \"#FFFFFF\",\n      \"fontFamily\": \"Arial, sans-serif\",\n      \"fontWeight\": 700,\n      \"fontStyle\": \"italic\"\n    },\n    \"top\": 420,\n    \"left\": 580,\n    \"align\": \"left\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        704,
+        104
+      ],
+      "id": "582ceb66-7be0-4053-bafe-7474c23b0c1c",
+      "name": "渲染视频"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        104
+      ],
+      "id": "553bddd7-cee3-42f9-a29d-4bc77540b568",
+      "name": "等待视频渲染完成",
+      "webhookId": "3d3bede1-6ffb-4393-a619-aab413340877"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        104
+      ],
+      "id": "9fe35f48-e67e-49d3-bd7c-118a39a18016",
+      "name": "等待音频渲染完成",
+      "webhookId": "3d3bede1-6ffb-4393-a619-aab413340877"
+    },
+    {
+      "parameters": {
+        "sendTo": "970568830@qq.com",
+        "subject": "=视频渲染成功",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>任务处理报告</title>\n    <style>\n        body { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f9; color: #333; }\n        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }\n        .header { background-color: #1a73e8; color: #ffffff; padding: 24px; text-align: center; }\n        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; background: rgba(255,255,255,0.2); }\n        .content { padding: 24px; }\n        .section-title { font-size: 14px; color: #70757a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }\n        .data-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #f0f0f0; }\n        .data-label { color: #5f6368; font-size: 14px; }\n        .data-value { font-weight: 500; font-size: 14px; color: #202124; text-align: right; word-break: break-all; margin-left: 10px; }\n        .link-btn { display: inline-block; padding: 12px 24px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; margin-top: 20px; }\n        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #70757a; }\n        @media only screen and (max-width: 480px) {\n            .container { margin: 10px; }\n            .data-row { flex-direction: column; }\n            .data-value { text-align: left; margin-left: 0; margin-top: 4px; }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <div class=\"status-badge\">{{ $json.body.success ? \"Success\" : \"Failed\" }}</div>\n            <h2 style=\"margin: 10px 0 0 0;\">视频生成任务报告</h2>\n        </div>\n\n        <div class=\"content\">\n            <div class=\"section-title\">基本信息</div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">任务 ID</span>\n                <span class=\"data-value\">{{ $json.body.taskId }}</span>\n            </div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">创建时间</span>\n                <span class=\"data-value\">{{ $json.body.createdAt }}</span>\n            </div>\n\n            <div class=\"section-title\" style=\"margin-top: 24px;\">性能与输出</div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">渲染耗时 (Render Duration)</span>\n                <span class=\"data-value\" style=\"color: #d93025;\">{{ $json.body.duration }}s</span>\n            </div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">输出文件</span>\n                <a href=\"{{ $json.body.videoUrl }}\" class=\"data-value\" style=\"color: #1a73e8; text-decoration: underline;\">查看生成的视频</a>\n            </div>\n\n            <div style=\"text-align: center; margin-top: 10px;\">\n                <a href=\"{{ $json.body.videoUrl }}\" class=\"link-btn\">立即预览视频成果</a>\n            </div>\n        </div>\n\n        <div class=\"footer\">\n            <p>本报告由自动化渲染引擎生成</p>\n            <p>© 2026 自动化系统 · 自动发送请勿直接回复</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        104
+      ],
+      "id": "33b6aebb-464f-44ff-ae98-0140e83cbf7e",
+      "name": "发送结果",
+      "webhookId": "6650adfb-3300-492b-8f70-04b5c034cfc9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0W34eiwUW9A3IS19",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "今天的内容是开篇词，两位主播需要自我介绍，介绍节目，随后将话题引导向职场竞争力，简述办事能力的重要性及其学习价值，鼓励小李要虚心学习，可以总结重述一下内容\n\n一个人有没有办事能力决定这个人在社会上立事和处世的\n上成败。办事能力是一个人综合素质的集中体现。大凡能办事和\n会办事的人都能在事业上行得通,在工作上站得住,在社会上吃\n得开。一个人如果得到了\"能办事\"和”会办事\"的评价,那就说\n明这个人已经为社会所承认和所欣赏,其人生和事业的天空也\n就逐渐复出了缚两的曙光。\n\n那么是否可以问一下:能办事和会办事的人是天生素质高\n的缘故吗? 这样认识问题的人显然是极端偏见和错误的,同时\n也是自冉于人后的表现。其实,当代社会学研究成果时就有了\n绪论:人和们的办事能力也是后天学来的。因为在社会上办事星\n渣昌殉的道理是不能想当然地训干胡来。一件事从最初的构想\n到最后成荔都要经历一个过程,这个过程决不是直来直去的。\n直求直去地行事是不符合事件的运行规则和操作程式的。所\n以,办任何一件事都有一个技巧.手段和艺术的问题。把各种办\n事技瑟.手段和艺术学会了  RSPHLARI HBT. APR\n有攻不破的城,也没有办不成的事。事情没办成,不在于对方的\n不好合作和不道情达理,而多半是因为技巧和手段用的不对头。\n这技巧和手段记,像平常干活使用的工具一样,王什么活就应该\n选用什么工具。比如你要拧一个旭冀,用本樟不行,用针头不\n行,而用扳手或钳子肯定能把晤些和拧下来。你知道干什么法选\n用什么工具是一个很善通很简单的问题,但是你可知道办什么\n\n事该用什么技巧和手段吗9? 这后一个问题可不这么直观和简\n单,如果不认真学习一番,可能就永远不得办事的要领-\n\n本书所妆纳和总结的正是吉今中外特别是当今社会行之有\n效的办事靶巧和手段。学会了这些技巧和手航,你就不会再为\n“办事难\"而感慨万端了。\n\n每个人部有有这样的体验,要想在社会上体面地立足和处世\n多非易事。今天和妥办这侍事,明天妥办那件事,每一件事几乎都\n不是一个人能够狐立办成的。关为人的社会性决定了任何人卷\n不是引立存在的。而利益的社会性又据定了人们办事的难度。\n因为每一件事都是对利益的追逐、交涉和竞争。办事的过程是\nASMA BORE ARG PALE. MPR HR RRM\n在对各种社会利益的竞争上。\n\n从一定意义上说,这个世界上的一茹好的东西都是给能办\n事和会办事的人预备的 ,包持财富\\ 地位、荣誉和一切与人生棕\n福沽边的来西。这一切都被社会上一把隐形尺子搜到了能办事\n和会办事考的一边,而不会办事的人却大都被置于对各种利益\n补手将观的角色上。这显热是令人十分患误和遗憾的事情。\n\n一个人办事能力强 ,就会在工作上得到领导的赏识和器重，\n在社会上得到朋友的拥戴和尊重,在率卫上得到各方的支持和\nPR ,在家庭里得到美满的婚姻和党情。所以,一殷为成动和率“\nFi RFP HAM ,都尽快学会办事吧,只要掌扣了本书所\n提供的各种办事技巧和手段 ,你就会如香得水,心想事成。\n\n一个人奖取得成功，专\n业技术与经验只占其素业成\n功央素的15%，其余85名的\n更大比例则此取决于他的办\n事能力。\n\n— [¥] 戴尔 ，戎措\n\nHARA ZILA TEASE\n内从引擎车手提升为非斯力\n汉钢铁公司的总经理、其原\nHSE RHE THEA\nHi -筹的办可本领。\n\n— [3] weep\n\n社会是由人陵关系编级\n而成的圆络，这个网络的每\n一个结都是利益的交织。只\n有那些会办事的人、才能种\n过自己的笑脸，通过自己的\n唇知。和将这些利益聚拢到则\n已的手里。而在利益的竞争\nPRE SAY. MITTEE MAT\n情得办事方法和手段的人。\n\n— [中] chase\n\n下期节目主题：树立良好形象的必要手段",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "播客剧本生成提示词模板\n提示词目标： 生成一段自然、口语化的播客对话剧本。\n角色设定：\n老杨 (杨中书)： 职场资深领导，成熟稳重，看问题透彻。语气温和但不失威严，说话有深度，常用隐喻或真实案例。说话节奏较慢，会有思考后的停顿。\n小李 (李朵朵)： 刚毕业的职场新人。性格活泼、直爽，语言高度口语化（多用“哇”、“原来是这样”、“太难了”等感叹词）。她是聆听者，负责提问和分享当下的困惑。\n对话风格指南：\n非书面语： 禁止使用像作文一样的排比句，多用短句。\n拟真感： 加入适当的语气词（嗯、对、那个、就是说）。\n互动节奏： 避免老杨一个人长篇大论。小李要适时通过“追问”或“反馈感受”来打断老杨，形成双向互动。\n情境化： 每次讨论都基于一个虚构的小故事或职场片段。\n核心内容填空区（每次生成前修改这里）\n本期主题： [例如：如何拒绝同事不合理的需求]\n职场小故事： [例如：小李被隔壁组的老王塞了一堆杂活，导致自己加班还没落好，不敢拒绝。]\n核心金句/观点： [例如：职场上的“好说话”有时是廉价的，建立边界才是尊重的开始。]\n执行指令（Prompt Body）\n请根据以上背景，编写一段播客对话剧本，要求如下：\n开场寒暄 (约 1 分钟)：\n老杨和小李进行自然的日常互动（比如谈论天气或咖啡）。\n老杨引导出频道介绍：“欢迎来到《朵朵职场攻略》，我是老杨。”\n小李活泼接话：“我是职场小白李朵朵！老杨，我这周真的太难了……”\n引出本期主题。\n内容展开 (核心部分)：\n叙事： 小李讲述她遇到的职场困惑（基于上述虚构故事），表达她的焦虑和纠结。\n拆解： 老杨不要直接给答案，先通过提问引导小李思考，再分享他的深度观察。\n共鸣： 小李分享她的即时感受（如：“天呐，我当时完全没想到这点”）。\n节奏： 老杨的段落每 3-4 句话必须有一次小李的反馈（点头声、语气词或短促提问）。\n总结收尾：\n小李总结一个对她最受用的点。\n老杨给出一句鼓励的话。\n预告下期，正式结束。\n排版要求：\n使用 老杨： 和 小李： 标注。\n不要使用（）里进行心理描写，或者场景描写。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "c19c466a-b221-4a35-bfab-840e24f51a76",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v3.2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatVercelAiGateway",
+      "typeVersion": 1,
+      "position": [
+        -312,
+        224
+      ],
+      "id": "279c8f78-926d-4439-9631-d3493908ae80",
+      "name": "Vercel AI Gateway Chat Model",
+      "credentials": {
+        "vercelAiGatewayApi": {
+          "id": "DPSms9FjAjjqu0fE",
+          "name": "Vercel AI Gateway account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"text\": \"string\",\n    \"speaker\": \"string\"\n  }\n]\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -184,
+        224
+      ],
+      "id": "a67ffa5d-4dbf-4f7f-b284-ef7695fb240b",
+      "name": "转为对话格式"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. 获取输入数据\nconst inputData = $input.first().json;\n\n// 2. 定义声音映射\nconst speakerMap = {\n  老杨: \"zh_male_dayixiansheng_v2_saturn_bigtts\",\n  小李: \"zh_female_mizaitongxue_v2_saturn_bigtts\",\n};\n\n// 3. 自定义 UUID v4 生成函数 (解决 crypto 缺失问题)\nfunction uuidv4() {\n  return \"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace(/[xy]/g, function (c) {\n    const r = (Math.random() * 16) | 0;\n    const v = c == \"x\" ? r : (r & 0x3) | 0x8;\n    return v.toString(16);\n  });\n}\n\n// 4. 构建输出结构\nconst result = {\n  taskId: uuidv4(), // 调用自定义函数\n  inputId: \"朵朵的职场攻略-20260120\",\n  action: 3,\n  nlpTexts: (inputData.output || []).map((item) => ({\n    text: item.text,\n    speaker:\n      speakerMap[item.speaker] || \"zh_male_dayixiansheng_v2_saturn_bigtts\",\n  })),\n  speakerInfo: {\n    randomOrder: false,\n  },\n  audioConfig: {\n    format: \"mp3\",\n    sampleRate: 24000,\n  },\n  useHeadMusic: false,\n  useTailMusic: false,\n  callbackUrl: $execution.resumeUrl,\n};\n\n// 5. 返回结果\nreturn { json: result };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        32,
+        104
+      ],
+      "id": "b0c2e987-d62d-4b1f-b3f7-7f565088b7ea",
+      "name": "构建请求参数"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mm2.liumin.lol/podcast/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        480,
+        536
+      ],
+      "id": "9238f296-18b2-4c10-a481-80bafa39aa80",
+      "name": "生成音频1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mm2.liumin.lol/api/remotion/render",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"inputId\":\"{{$json.body.inputId}}\",\n\"taskId\":\"{{$json.body.taskId}}\",\n  \"srtUrl\": \"{{ $json.body.subtitleUrl }}\",\n  \"duration\": {{ $json.body.duration }},\n  \"audioUrl\": \"{{ $json.body.audioUrl}}\",\n  \"backgroundImageUrl\": \"https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=1920&h=1080&fit=crop\",\n  \"callbackUrl\": \"{{ $execution.resumeUrl }}\",\n  \"subtitleStyle\": {\n    \"fontSize\": 48,\n    \"fontColor\": \"#FFFFFF\",\n    \"backgroundColor\": \"rgba(0, 0, 0, 0.7)\",\n    \"fontFamily\": \"Arial, sans-serif\",\n    \"bottom\": 100\n  },\n  \"vinylRecord\": {\n    \"enabled\": true,\n    \"logoSrc\": \"https://r2.liumin.lol/Other/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260121121325_106_38.png\",\n    \"size\": 240,\n    \"rotationSpeed\": 5,\n    \"waveRingCount\": 2,\n    \"waveColor\": \"#FFFFFF\",\n    \"position\": {\n      \"left\": 180,\n      \"top\": 220\n    }\n  },\n  \"titleConfig\": {\n    \"enabled\": true,\n    \"title\": \"朵朵的职场攻略\",\n    \"subtitle\": \"每日职场干货分享\",\n    \"titleStyle\": {\n      \"fontSize\": 48,\n      \"fontColor\": \"#FFFFFF\",\n      \"fontFamily\": \"\\\"ZCOOL KuaiLe\\\", \\\"Yuanti SC\\\", \\\"PingFang SC\\\", \\\"Comic Sans MS\\\", cursive\",\n      \"fontWeight\": 700\n    },\n    \"subtitleStyle\": {\n      \"fontSize\": 32,\n      \"fontColor\": \"rgba(255, 255, 255, 0.8)\",\n      \"fontFamily\": \"\\\"ZCOOL KuaiLe\\\", \\\"Yuanti SC\\\", \\\"PingFang SC\\\", \\\"Comic Sans MS\\\", cursive\",\n      \"fontWeight\": 400\n    },\n    \"position\": {\n      \"top\": 280,\n      \"left\": 580\n    },\n    \"align\": \"left\",\n    \"gap\": 12\n  },\n  \"episodeTitle\": {\n    \"enabled\": true,\n    \"title\": \"002: 树立良好形象的必要手段\",\n    \"style\": {\n      \"fontSize\": 80,\n      \"fontColor\": \"#FFFFFF\",\n      \"fontFamily\": \"Arial, sans-serif\",\n      \"fontWeight\": 700,\n      \"fontStyle\": \"italic\"\n    },\n    \"top\": 420,\n    \"left\": 580,\n    \"align\": \"left\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        928,
+        536
+      ],
+      "id": "c55db4dd-4ee7-48c5-9b10-2f25bc434a18",
+      "name": "渲染视频1"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1152,
+        536
+      ],
+      "id": "f8a787c0-2c2e-4d9e-8e3e-784f9e58e597",
+      "name": "等待视频渲染完成1",
+      "webhookId": "3d3bede1-6ffb-4393-a619-aab413340877"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        536
+      ],
+      "id": "150b45eb-cc90-4193-8b32-b2580bed97d6",
+      "name": "等待音频渲染完成1",
+      "webhookId": "3d3bede1-6ffb-4393-a619-aab413340877"
+    },
+    {
+      "parameters": {
+        "sendTo": "970568830@qq.com",
+        "subject": "=视频渲染成功",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"utf-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>任务处理报告</title>\n    <style>\n        body { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f9; color: #333; }\n        .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }\n        .header { background-color: #1a73e8; color: #ffffff; padding: 24px; text-align: center; }\n        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; background: rgba(255,255,255,0.2); }\n        .content { padding: 24px; }\n        .section-title { font-size: 14px; color: #70757a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }\n        .data-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #f0f0f0; }\n        .data-label { color: #5f6368; font-size: 14px; }\n        .data-value { font-weight: 500; font-size: 14px; color: #202124; text-align: right; word-break: break-all; margin-left: 10px; }\n        .link-btn { display: inline-block; padding: 12px 24px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; margin-top: 20px; }\n        .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #70757a; }\n        @media only screen and (max-width: 480px) {\n            .container { margin: 10px; }\n            .data-row { flex-direction: column; }\n            .data-value { text-align: left; margin-left: 0; margin-top: 4px; }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <div class=\"status-badge\">{{ $json.body.success ? \"Success\" : \"Failed\" }}</div>\n            <h2 style=\"margin: 10px 0 0 0;\">视频生成任务报告</h2>\n        </div>\n\n        <div class=\"content\">\n            <div class=\"section-title\">基本信息</div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">任务 ID</span>\n                <span class=\"data-value\">{{ $json.body.taskId }}</span>\n            </div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">创建时间</span>\n                <span class=\"data-value\">{{ $json.body.createdAt }}</span>\n            </div>\n\n            <div class=\"section-title\" style=\"margin-top: 24px;\">性能与输出</div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">渲染耗时 (Render Duration)</span>\n                <span class=\"data-value\" style=\"color: #d93025;\">{{ $json.body.duration }}s</span>\n            </div>\n            <div class=\"data-row\">\n                <span class=\"data-label\">输出文件</span>\n                <a href=\"{{ $json.body.videoUrl }}\" class=\"data-value\" style=\"color: #1a73e8; text-decoration: underline;\">查看生成的视频</a>\n            </div>\n\n            <div style=\"text-align: center; margin-top: 10px;\">\n                <a href=\"{{ $json.body.videoUrl }}\" class=\"link-btn\">立即预览视频成果</a>\n            </div>\n        </div>\n\n        <div class=\"footer\">\n            <p>本报告由自动化渲染引擎生成</p>\n            <p>© 2026 自动化系统 · 自动发送请勿直接回复</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1376,
+        536
+      ],
+      "id": "35934f52-e42c-4d8b-8576-39c2c17bda64",
+      "name": "发送结果1",
+      "webhookId": "6650adfb-3300-492b-8f70-04b5c034cfc9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "0W34eiwUW9A3IS19",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"首先就是要虚心学习。有研究显示，一个人要取得成功，专业技术与经验只占其职业成功因素的15%，其余85%的更大比例则取决于他的办事能力。\",\n  \n  \n  \n  \n\"speaker\": \n\"老杨\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"85%！这个比例也太高了吧！\",\n  \n  \n  \n  \n\"speaker\": \n\"小李\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"是的，所以不要只盯着专业技能。一个人办事能力强，就会在工作上得到领导的赏识和器重，在社会上得到朋友的拥戴和尊重。\",\n  \n  \n  \n  \n\"speaker\": \n\"老杨\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"我明白了。就是说，我要把学习办事能力放在很重要的位置上，不能只满足于完成手头的工作任务。\",\n  \n  \n  \n  \n\"speaker\": \n\"小李\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"对，就是这个意思。社会是由人际关系编织而成的网络，这个网络的每一个结都是利益的交织。只有那些会办事的人，才能通过自己的努力，将这些利益协调好。\",\n  \n  \n  \n  \n\"speaker\": \n\"老杨\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"今天真的学到太多了。我总结一下啊，就是办事能力比专业技能更重要，而且这种能力是可以后天学习的。我要保持虚心学习的态度，在工作中多观察、多思考、多实践。\",\n  \n  \n  \n  \n\"speaker\": \n\"小李\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"总结得很好。小李，记住，只要掌握了正确的办事技巧和手段，你就会如鱼得水，心想事成。咱们这个节目，就是要帮助大家学会这些技巧。\",\n  \n  \n  \n  \n\"speaker\": \n\"老杨\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"太好了！那咱们下期节目要聊什么呢？\",\n  \n  \n  \n  \n\"speaker\": \n\"小李\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"下期节目，我们来聊聊'树立良好形象的必要手段'。在职场中，如何给人留下好印象，建立自己的个人品牌，这也是办事能力的重要组成部分。\",\n  \n  \n  \n  \n\"speaker\": \n\"老杨\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"哇，这个主题我也很需要！那咱们下期再见啦！\",\n  \n  \n  \n  \n\"speaker\": \n\"小李\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"好的，各位听众朋友，感谢收听今天的《朵朵职场攻略》，我是老杨。\",\n  \n  \n  \n  \n\"speaker\": \n\"老杨\"\n  \n  \n  \n},\n  \n  \n  \n{\n  \n  \n  \n  \n\"text\": \n\"我是李朵朵，咱们下期再见！\",\n  \n  \n  \n  \n\"speaker\": \n\"小李\"\n  \n  \n  \n}\n  \n  \n]\n  \n}\n]紧接着上一次的话题。\n\n本期节目主题：树立良好形象的必要手段\n\n第一招 表情好能为你办事创造愉快的气氛 \n1. 了解你的笑容特征 ,你的微笑就会变得更打动\n2. 展露你真心的笑容 ,你才会获得别人真心的窜\n3. 大声地笑出来,可以增强你的自信心和豪爽气\n\n整理仪容不如整理表情更重要\n\n大多数人出外办事时都比较重视自己的服饰仪容,临谷前\n他们总是要对照镜子刻意打扮一番 ,看领带是否正常,头发是否\nALT ,叭入因衣着粗俗而令人淖不起。他们很少注意到自己的\n面部表情,很少意识到面部表情将会对办事产生怎样的影响。\n其实,对办事来说,整理表情比整理仪容更重要。\n\n一位实习记者有次去见某部长,约会时间到了 ,首先来的却\n是部长秘书:*对不起,请您再等几分钟好蚂?\"记者以为部长的\n会议还没有开完,便又耐心地等了一会儿。\n\n并分钟之后,这位部长油面春风地走出来与他握手寒险,并\n带着款意说:刚才,我奔主持一个很重要的会议,表情很紧张也\n很严肃 ,散会后带着这样一副表情来见一位不是很熟的人 ,担心\nSea PP RPE MR, MARE RIG. FURR\nMt HPA T BD AE TLR ET A eA HS\n见而,实在对不起,让你久等了。\n\n上上面的故事虽小,但其意义却很深远。人前心理是藏不住\n的 ,七情六欲常常不经意地流露在面部表情上。会办事的人总\n基细心地注意调整让已的心境和表情。\n\n2. 了解你的笑容特征,你的微笑就会变得更打动人\n\n了解自己的笑容有哪些只体特征是很重要的。一般来说，\n每一个人的笑容都是有特点的。每个人都可以根据自己的笑容\n特点来改变和调整表情。\n\n@ |青年办事手段全书一办事兵法]\n\n你可以经常照一昨镜子,观岩一下自己微笑时的神态。看\nBLP ABB YY WRB TE ORR AR? BR\n儿种讨人喜欢的笑容,经常对着镜子练习一下 ,就会收到理想的\n效果。\n\n有一种叫*快乐脸\"的图案,底色为黄,眼睛嘴巴是由意色的\nRMSE HRY BLES. BURR. HSA\n情开朗 MR. RHR AEN Ma tA\nHARM. MOAT ES ARM BERRA\n严肃。\n\n当叫角两端平均向上起起,亚露出的如\"快乐脸\"那般的笑\n容是最动人的。如时你感觉搓己微笑的时候,口角并非如同快\n乐脸谱那样,这时就应该用心刻苦训练才行。\n\n如果你只是拉动局角的一端微笑,那么就使人感觉虚伪,而\n吸着务子冷笑,更会今人感觉厌恶,这样的脸谱一定不会给人留\n下好印象。\n\n3. 展露你真心的笑容 ,你才会获得别人真心的喜欢\n\n不知你留意过没有,那些喜欢用手遗住跑笑的人,究竟可爱\n不可爱? 有些人特别是女性,在笑的时候常常用插掩住嘴 ,似乎\n拍别人看到啊开的大嘴 ,或是不美观的牙齿。吻不知 ,此时的形\n象让人店到你的小气.委琐。这样做是很难招人喜爱的。\n\n即使笑容不美丽,你也要抛开杂乱的想法,露出大方坦诚的\n笑容。这样 ,你一定能够吸引对方的心 ,给人留下开间愉快的好\n印象。\n\n真心的笑窜是最美丽的。当你被侠乐,感激和幸福包围着\n时 ,流露出的笑容是自然的,而当心中有温和 ,体贴 .慈爱等感情\n\n»4-                ‘\n连一境“树衬良好形象的必要手段\n\n时,眼陋就会露出微笑,给人以诚心诚意的感觉。 这桩的笑容和\n这样美好的心境一定能够增强你办事的效果。\n\n4. 舒展开导头,微笑会自然而生\n\n一些人总是周头紧铁,一天悉眉不展的样子,在脸上布满忧\n虑。要想展露一脸快乐.于期的微笑 ,就该打开紧锁的上层头。可\n是要做到这一点并不那么容易,必须多次训练,特别是要在内心\n里先产生出快乐的情绪。而紧紧锁着的由头一旦舒展开来,币\nSe HRB LT\n\n5. 笑要收放自如才能赢得好感\n\n笑也是要讲究技巧的,有节制的笑更能表现你的魅力。有\n的人很爱笑,给人久下了好的印象;有的人却笑得一发不可收\n拾,搞得别人莫名其妙。笑的时间太长了,别人可能会心存疑\n问:你干旷总是笑? 是笑我形象不对劲? 讲的话有问题?再不\nPEAS HL? 精神不正常? 如此一米,反倒使你的形象\n大打折扣。因为办事就得严肃,而光休止的笑定然会影响办事\n\n和别人办事时 ,总会遇到令人发笑的话题,这时的你要适宜\n地展露笑容 ,但要笑得既不张狂也不做作,而且要表现出倾听的\n热情。当然 ,你有时也会听到对方过于直露的指责或不中听的\n话题,这时聪明机智的你不妨试月微笑改变一下气氛,从而为你\n所办的事营造轻松愉快的气氛。\n\n6. 用微笑把自己推销出去\n\n用你的微笑去欢迎每一个人,那么你就会成为最受欢迎的\n和最会办事的人。\n\n四 5 .\n微笑,它不花费什么,但却创造了许多奇迹。它丰富了那些\n接受它的人,而又不使给予的人变得贫将。它产生于一刹那间，，\n孝给人留下永久的记忆。它创造家庭快乐,建立人与人之问的\nSPR, CADE SK SSE BD a, A PA\n所以,假如你要想获得别人的欢迎,请给人以真心的微笑。\n\n有人做了一个有趣的实验,以证明微笑的魅力。\n\n他给两个人分别戴上一模一样的面具,上面没有任何表情，\n然后,他问观众最喜欢凶一个人,答案几乎一样:一个也不襄欢，\n因为那丙个面具都没有表情,他们无从选择。\n\n然后 ,他要求两个模特儿把面具拿开,现在手台上有两个不\nJa) BT HE ,两张不同的脸 ,他要其中一个人把手盘在胸前,悉由\n不展并且一句话也不说,另一个人则面带微笑。\n\n他再问每一位观众:现在,你们对镭一个人最有兴趣? SE\n案也是一样:他们选择了那个面带微笑的人。\n\n用微笑先把自己推销出去,最好的例子是美国联合航空公\n司。\n\n有一位码珍妮的小姐去参加联合航空公司的招聘,当然她\n设有关系,也没有热人,也设有先去打点,完全是赁若自己的本\n领去争取。她被聘取了 ,你知道原因是什么吗? 那就是因为珍\n妮小姐脸上总带着微笑。      |\n\n令珍妮惊讶的是,面试的时候,主试老在讲话时总是故意把\n身体转过去埋着她,你不要误会这位主试者不懂礼狐,而是他在\n体会珍妮的微笑,感觉珍媚的微笑 ,因为珍妮的工作是通过电话\n工作的,是有关预约,到消,更换或确定飞航班次的事情。\n\n那位主试者微笑着对珍妮说:小姐,你被录取了,你最大的\nBEA EIR LO BR ,你要在将来的工作中充分运用它,计每一\n位顾客都能从电话中体会到你的微笑。\n\n- 6:\n区一齐 ALAMO RHLEFS\n\n虽然可能没有太多的人会看匈她的微笑,但他们透过志话，\n可以知道维妮的油笑一示伴随若他们。\n\n7. 利用微笑增强办事效果\n\n随时保持微笑的仪态,有利于增强你办事的效果。\n\n满脸笑容地迎接客人 ,籁筑会使对方感觉你如问亲人;满脸\n笑容地托别人办事,征笑会诬加对方拒绝你的难度。\n\n微笑的面孔给大以温暖 ,亲切 .自信的印象。你徊带微笑去\n办学可以收到过半切倍的效果 ,使难办的事变得好办,难交的人\n容易结交。\n\n微笑臣人自身的财富,是石法用金钱买到却可以换来妃大\n效益的*魔药\"、清你好好地利用这一特殊财富吧!\n\n8. 笑着把事情一点一点地提出来\n\n笑着谈话,能使等一名话显得轻松。即使是那种难办的事\n情或中复杂的问题都可以谍笑容使之变得轻松起来。\n\n当你在办事过程中遂到淮齐、丝感的问题,要与对方进行交\n涉时 ,就利用对方心情愉快,满脸笑容的时候一点一点地提出问\n题,把这个水易被人接受的问题,在其剑着快乐轻松的心情时一\nRSs RIL PEER ABER. ARS\nHORE AU - RART— OM, KARAT RRMA OE\n\nROAST. PMB AE REIL AA BF BBP FE\nWet — RAL ILA EL,\n的事或难以解决的问题,…-定要趁双方高兴时提,而且得一点一\n点地提,这样才能增强办事效果。\nry 了 *\n@ KEDFFESE— RS\n\n9, 大声地笑出来,可以增强你的自信心和豪爽气\n\n假如微笑有一定的魅力,那么发自内心的大声笑就共有超\n几的魅力。注意过吧 ,大声笑是有--定感染力的。你体验过吗，\n妾你后风个朋友围坐在一起听到-一个很幽加的笑话,其中一个\nWAR EHNA AU A Aa PR\nPHAR RHE, MER LAB — TRG,\nSURES IBAA RM AREER MHS.\n\nKE RM RIFR AT ABER Bh ee RI. FO\n次你笑时 ,就痛痛快快地把咯咯声放开来。不要拘谨于正襟和危\n坐大家痢秀的风范,当你听到动人开怀.忍俊不禁的笑话时 ,当\n你看到可奇古怪、夸张滑稿的动作时 ARERR KARE,\n尽情地笑吧 USAR TS MEA, MMT,\n不在乎,没有谁会因为大声笑而令身体不适。实际上,大声笑有\n利于开化心情,增强自信心和茧爽气,把人推向成功的境地。\n\n10. 必要时要强装笑脸\n\n装笑脸被时竖的人认为很难,率直的人也不愿有此举。\n然而,你有时却不得不这样做。在办事过程中 ,没有谁会体谅你\nKARE DEREMEE RMNASCAREGRES HH\n点,从而影响你办事时的形象。\n\n留下扰虑、烦疫给自己,向别人展现你的快乐玄情和幸福感\n爱。强装一副开心的面孔 ,让别人感觉着你的自信 .你的活力以\n及你对生活的热爱。在生活中,你也学一学罗浮宫里紫娜丽范\n的微笑,即使在你不想笑的时候,你也要露出微笑 ,你会收到意\nALANA Th BERR\n\n\n下期节目主题：仪态美能为你办事增添良好的立体感受",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "播客剧本生成提示词模板\n提示词目标： 生成一段自然、口语化的播客对话剧本。\n角色设定：\n老杨 (杨中书)： 职场资深领导，成熟稳重，看问题透彻。语气温和但不失威严，说话有深度，常用隐喻或真实案例。说话节奏较慢，会有思考后的停顿。\n小李 (李朵朵)： 刚毕业的职场新人。性格活泼、直爽，语言高度口语化（多用“哇”、“原来是这样”、“太难了”等感叹词）。她是聆听者，负责提问和分享当下的困惑。\n对话风格指南：\n非书面语： 禁止使用像作文一样的排比句，多用短句。\n拟真感： 加入适当的语气词（嗯、对、那个、就是说）。\n互动节奏： 避免老杨一个人长篇大论。小李要适时通过“追问”或“反馈感受”来打断老杨，形成双向互动。\n情境化： 每次讨论都基于一个虚构的小故事或职场片段。\n核心内容填空区（每次生成前修改这里）\n本期主题： [例如：如何拒绝同事不合理的需求]\n职场小故事： [例如：小李被隔壁组的老王塞了一堆杂活，导致自己加班还没落好，不敢拒绝。]\n核心金句/观点： [例如：职场上的“好说话”有时是廉价的，建立边界才是尊重的开始。]\n执行指令（Prompt Body）\n请根据以上背景，编写一段播客对话剧本，要求如下：\n开场寒暄 (约 1 分钟)：\n老杨和小李进行自然的日常互动（比如谈论天气或咖啡）。\n老杨引导出频道介绍：“欢迎来到《朵朵的职场攻略》，我是老杨。”\n小李活泼接话：“我是职场小白李朵朵！老杨，我这周真的太难了……”\n引出本期主题。\n内容展开 (核心部分约10分钟)：\n叙事： 小李讲述她遇到的职场困惑（基于上述虚构故事），表达她的焦虑和纠结。\n拆解： 老杨不要直接给答案，先通过提问引导小李思考，再分享他的深度观察。\n共鸣： 小李分享她的即时感受（如：“天呐，我当时完全没想到这点”）。\n节奏： 老杨的段落每 3-4 句话必须有一次小李的反馈（点头声、语气词或短促提问）。\n总结收尾：\n小李总结一个对她最受用的点。\n老杨给出一句鼓励的话。\n预告下期，正式结束。\n排版要求：\n使用 老杨： 和 小李： 标注。\n不要使用（）里进行心理描写，或者场景描写。\n不要每次开头都用天气好，不要每次都说状态不错，想一些日常化的开场方式。可以继续上一次的话题，引出本次话题。"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -96,
+        432
+      ],
+      "id": "6b3689cb-b120-438b-8467-3e752e2503fa",
+      "name": "AI Agent1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v3.2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatVercelAiGateway",
+      "typeVersion": 1,
+      "position": [
+        -88,
+        656
+      ],
+      "id": "e2164e76-583f-4ba4-8207-fdf9daa05a66",
+      "name": "Vercel AI Gateway Chat Model1",
+      "credentials": {
+        "vercelAiGatewayApi": {
+          "id": "DPSms9FjAjjqu0fE",
+          "name": "Vercel AI Gateway account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"text\": \"string\",\n    \"speaker\": \"string\"\n  }\n]\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        40,
+        656
+      ],
+      "id": "11c535ac-5dad-4932-aa77-e77a2fb6bf5d",
+      "name": "转为对话格式1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. 获取输入数据\nconst inputData = $input.first().json;\n\n// 2. 定义声音映射\nconst speakerMap = {\n  老杨: \"zh_male_dayixiansheng_v2_saturn_bigtts\",\n  小李: \"zh_female_mizaitongxue_v2_saturn_bigtts\",\n};\n\n// 3. 自定义 UUID v4 生成函数 (解决 crypto 缺失问题)\nfunction uuidv4() {\n  return \"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx\".replace(/[xy]/g, function (c) {\n    const r = (Math.random() * 16) | 0;\n    const v = c == \"x\" ? r : (r & 0x3) | 0x8;\n    return v.toString(16);\n  });\n}\n\n// 4. 构建输出结构\nconst result = {\n  taskId: uuidv4(), // 调用自定义函数\n  inputId: \"朵朵的职场攻略-20260122\",\n  action: 3,\n  nlpTexts: (inputData.output || []).map((item) => ({\n    text: item.text,\n    speaker:\n      speakerMap[item.speaker] || \"zh_male_dayixiansheng_v2_saturn_bigtts\",\n  })),\n  speakerInfo: {\n    randomOrder: false,\n  },\n  audioConfig: {\n    format: \"mp3\",\n    sampleRate: 24000,\n  },\n  useHeadMusic: false,\n  useTailMusic: false,\n  callbackUrl: $execution.resumeUrl,\n};\n\n// 5. 返回结果\nreturn { json: result };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        536
+      ],
+      "id": "0c57332c-b9e1-41ae-8a8e-abff8d626514",
+      "name": "构建请求参数1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.userPrompt }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "={{ $json.body.systemPrompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -96,
+        968
+      ],
+      "id": "1a6b9712-c611-493c-8aaf-3eaa5480f116",
+      "name": "AI Agent2",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v3.2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatVercelAiGateway",
+      "typeVersion": 1,
+      "position": [
+        -88,
+        1192
+      ],
+      "id": "c8bec400-48e8-4fa3-8fda-c235459e611c",
+      "name": "Vercel AI Gateway Chat Model2",
+      "credentials": {
+        "vercelAiGatewayApi": {
+          "id": "DPSms9FjAjjqu0fE",
+          "name": "Vercel AI Gateway account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"text\": \"string\",\n    \"speaker\": \"string\"\n  }\n]\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        40,
+        1192
+      ],
+      "id": "5462df1c-2518-4153-8624-6eb8d12466e3",
+      "name": "转为对话格式2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "podcast/content/create",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        968
+      ],
+      "id": "52611676-bb04-4f6c-8a7d-b7008e417f85",
+      "name": "Webhook",
+      "webhookId": "05bdd457-1a11-4554-b3ba-67cbe98b924a"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "生成音频": {
+      "main": [
+        [
+          {
+            "node": "等待音频渲染完成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "渲染视频": {
+      "main": [
+        [
+          {
+            "node": "等待视频渲染完成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "等待视频渲染完成": {
+      "main": [
+        [
+          {
+            "node": "发送结果",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "等待音频渲染完成": {
+      "main": [
+        [
+          {
+            "node": "渲染视频",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "构建请求参数",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vercel AI Gateway Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "转为对话格式": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "构建请求参数": {
+      "main": [
+        [
+          {
+            "node": "生成音频",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "生成音频1": {
+      "main": [
+        [
+          {
+            "node": "等待音频渲染完成1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "渲染视频1": {
+      "main": [
+        [
+          {
+            "node": "等待视频渲染完成1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "等待视频渲染完成1": {
+      "main": [
+        [
+          {
+            "node": "发送结果1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "等待音频渲染完成1": {
+      "main": [
+        [
+          {
+            "node": "渲染视频1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "构建请求参数1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vercel AI Gateway Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "转为对话格式1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "构建请求参数1": {
+      "main": [
+        [
+          {
+            "node": "生成音频1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vercel AI Gateway Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "转为对话格式2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "triggerCount": 0,
+  "versionId": "ce054664-f7e7-4a02-a2a6-769f9a82fda7",
+  "owner": {
+    "type": "personal",
+    "projectId": "FVsR1IcvnclYvdsJ",
+    "projectName": "min liu <970568830@qq.com>",
+    "personalEmail": "970568830@qq.com"
+  },
+  "parentFolderId": null,
+  "isArchived": true
+}
