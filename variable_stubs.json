@@ -40,5 +40,11 @@
     "key": "minio_bucket",
     "type": "string",
     "value": ""
+  },
+  {
+    "id": "yu17u3HhPwuEV7lS",
+    "key": "mongodb_url",
+    "type": "string",
+    "value": ""
   }
 ]
